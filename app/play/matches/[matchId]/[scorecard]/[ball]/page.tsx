@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Refresh from "@/app/play/matches/[matchId]/_components/refresh";
 import ScoreABall from "@/components/score-a-ball";
 import { Button } from "@/components/ui/button";
-import { getBallById, getPreviousBallsOfSameOver } from "@/data/balls";
+import { getBallById, getBallsOfSameOver } from "@/data/balls";
 import { getMatchById } from "@/data/matches";
 import { getScorecardById } from "@/data/scorecard";
 import { revalidateGivenPath, saveBallData } from "@/actions/match-actions";
@@ -25,7 +25,7 @@ export default async function MatchPage({
   if (!ball) {
     redirect(`/play/matches/${matchId}/start-match`);
   }
-  let otherBalls = await getPreviousBallsOfSameOver(
+  let otherBalls = await getBallsOfSameOver(
     +matchId,
     ball!.ballNumber,
     ball!.battingTeamId,
@@ -71,10 +71,12 @@ export default async function MatchPage({
               <span className="text-muted-foreground"> overs</span>
             </p>
           </div>
-          <Button size={"sm"} variant={"outline"}>
-            scorecard
-          </Button>
-          <Refresh onRefresh={revalidateGivenPath} />
+          <div className="flex-center">
+            <Button size={"sm"} variant={"outline"}>
+              scorecard
+            </Button>
+            <Refresh onRefresh={revalidateGivenPath} />
+          </div>
         </div>
         {ball && (
           <ScoreABall
