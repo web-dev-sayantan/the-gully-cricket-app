@@ -16,3 +16,14 @@ export type WicketType =
   | "hit wicket"
   | "boundary out"
   | "others";
+
+export type TeamPlayerType = {
+  id: number;
+  teamId: number;
+  playerId: number;
+  isCaptain: boolean;
+  player: {
+    id: number;
+    name: string;
+  };
+};

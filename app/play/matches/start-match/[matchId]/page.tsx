@@ -1,5 +1,5 @@
 import { onSelectCurrentBattersAndBowler } from "@/actions/match-actions";
-import PlayerSelector from "./_components/PlayerSelector";
+import PlayerSelector from "@/components/players-selector";
 import { getMatchById } from "@/data/matches";
 import { Separator } from "@radix-ui/react-separator";
 
@@ -11,47 +11,22 @@ export default async function StartMatchPage({
   const match = await getMatchById(+matchId);
   if (!match) return <div>Match not found</div>;
 
-  const battingTeamPlayers = [
-    match.team_battingFirstTeamId.player_player1,
-    match.team_battingFirstTeamId.player_player2,
-    match.team_battingFirstTeamId.player_player3,
-    match.team_battingFirstTeamId.player_player4,
-    match.team_battingFirstTeamId.player_player5,
-    match.team_battingFirstTeamId.player_player6,
-    match.team_battingFirstTeamId.player_player7,
-    match.team_battingFirstTeamId.player_player8,
-    match.team_battingFirstTeamId.player_player9,
-    match.team_battingFirstTeamId.player_player10,
-    match.team_battingFirstTeamId.player_player11,
-  ].filter((player) => !!player);
+  const battingTeamPlayers = match.team1.teamPlayers;
 
-  const bowlingTeamPlayers = [
-    match.team_battingSecondTeamId.player_player1,
-    match.team_battingSecondTeamId.player_player2,
-    match.team_battingSecondTeamId.player_player3,
-    match.team_battingSecondTeamId.player_player4,
-    match.team_battingSecondTeamId.player_player5,
-    match.team_battingSecondTeamId.player_player6,
-    match.team_battingSecondTeamId.player_player7,
-    match.team_battingSecondTeamId.player_player8,
-    match.team_battingSecondTeamId.player_player9,
-    match.team_battingSecondTeamId.player_player10,
-    match.team_battingSecondTeamId.player_player11,
-  ].filter((player) => !!player);
+  const bowlingTeamPlayers = match.team2.teamPlayers;
 
   return (
     <div className="w-full flex flex-col gap-y-4 p-4">
       <h1 className="text-2xl text-center">Match {match.id}</h1>
       <p className="text-center">
-        {match.team_battingFirstTeamId.name} vs{" "}
-        {match.team_battingSecondTeamId.name}
+        {match.team1.name} vs {match.team2.name}
       </p>
       <Separator />
       <PlayerSelector
         battingTeam={battingTeamPlayers}
         bowlingTeam={bowlingTeamPlayers}
         matchId={+matchId}
-        bowlingTeamId={match.team_battingSecondTeamId.id}
+        bowlingTeamId={match.team2.id}
         ballNumber={1}
         onSelectCurrentBattersAndBowler={onSelectCurrentBattersAndBowler}
       />

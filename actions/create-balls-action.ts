@@ -1,45 +1,40 @@
 import { db } from "@/db";
-import { balls, InsertBall } from "@/db/schema";
-import { Dismissed, ExtrasType, WicketType } from "@/types";
+import { balls } from "@/db/schema";
+import { NewBall } from "@/db/types";
+import { WicketType } from "@/types";
 import { eq } from "drizzle-orm";
 
 export async function createNewBallAction({
-  matchId,
-  scorecardId,
-  battingTeamId,
-  bowlingTeamId,
+  inningsId,
   strikerId,
   nonStrikerId,
   bowlerId,
   ballNumber,
   runsScored,
-  wicket,
+  isWicket,
   wicketType,
-  caughtBy,
-  runOutBy,
-  stumpedBy,
-  isExtra,
-  extraType,
-}: InsertBall) {
+  assistPlayerId,
+  isWide,
+  isNoBall,
+  isBye,
+  isLegBye,
+}: NewBall) {
   const newBall = await db
     .insert(balls)
     .values({
-      matchId,
-      scorecardId,
-      battingTeamId,
-      bowlingTeamId,
+      inningsId,
       strikerId,
       nonStrikerId,
       bowlerId,
       ballNumber,
       runsScored,
-      wicket,
+      isWicket,
       wicketType,
-      caughtBy,
-      runOutBy,
-      stumpedBy,
-      isExtra,
-      extraType,
+      assistPlayerId,
+      isWide,
+      isNoBall,
+      isBye,
+      isLegBye,
     })
     .returning({ id: balls.id });
   if (newBall.length === 0) return null;
@@ -53,28 +48,19 @@ export async function updateBallAction({
   nonStrikerId,
   bowlerId,
   runsScored = 0,
-  wicket = false,
+  isWicket = false,
   wicketType,
-  caughtBy,
-  runOutBy,
-  stumpedBy,
-  isExtra = false,
-  extraType,
-}: {
-  id: number;
-  ballNumber: number;
-  strikerId: number;
-  nonStrikerId: number;
-  bowlerId: number;
-  runsScored?: number;
-  wicket?: boolean;
-  wicketType?: WicketType;
-  caughtBy?: number;
-  runOutBy?: number;
-  stumpedBy?: number;
-  isExtra?: boolean;
-  extraType?: ExtrasType;
-}) {
+  assistPlayerId,
+  dismissedPlayerId,
+  isBye = false,
+  isLegBye = false,
+  isWide = false,
+  isNoBall = false,
+}: NewBall) {
+  if (!id) {
+    throw new Error("Ball id is required");
+  }
+  // Update the current ball
   const updatedBall = await db
     .update(balls)
     .set({
@@ -83,13 +69,14 @@ export async function updateBallAction({
       nonStrikerId,
       bowlerId,
       runsScored,
-      wicket,
+      isWicket,
       wicketType,
-      caughtBy,
-      runOutBy,
-      stumpedBy,
-      isExtra,
-      extraType,
+      assistPlayerId,
+      dismissedPlayerId,
+      isNoBall,
+      isWide,
+      isBye,
+      isLegBye,
     })
     .where(eq(balls.id, id))
     .returning();

@@ -5,10 +5,11 @@ import {
   updateBallAction,
 } from "@/actions/create-balls-action";
 import {
-  createScorecardAction,
-  updateScorecardAction,
-} from "@/actions/create-scorecard-action";
+  createInningsAction,
+  updateInningsAction,
+} from "@/actions/create-innings-action";
 import { getMatchById } from "@/data/matches";
+import { NewBall } from "@/db/types";
 import { ExtrasType, WicketType } from "@/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -19,44 +20,33 @@ export async function revalidateGivenPath(path: string) {
 
 export async function saveBallData(
   {
-    ballId,
+    id,
     strikerId,
     nonStrikerId,
     bowlerId,
     ballNumber,
     runsScored,
-    isExtra,
-    extraType,
-    wicket,
+    isBye,
+    isLegBye,
+    isWide,
+    isNoBall,
+    isWicket,
     wicketType,
-  }: {
-    ballId: number;
-    strikerId: number;
-    nonStrikerId: number;
-    bowlerId: number;
-    ballNumber: number;
-    runsScored: number;
-    isExtra: boolean;
-    extraType?: ExtrasType;
-    wicket: boolean;
-    wicketType?: WicketType;
-  },
+    assistPlayerId,
+    dismissedPlayerId,
+  }: NewBall,
   {
-    scorecardId,
+    inningsId,
     wickets,
     balls,
     extras,
-    target,
     totalScore,
-    teamId,
   }: {
-    scorecardId: number;
+    inningsId: number;
     wickets: number;
     balls: number;
     extras: number;
-    target: number;
     totalScore: number;
-    teamId: number;
   },
   {
     matchId,
@@ -68,45 +58,62 @@ export async function saveBallData(
 ) {
   "use server";
 
+  if (!id) {
+    throw new Error("Ball id is required");
+  }
   // Update the current ball
   await updateBallAction({
-    id: ballId,
+    id,
+    inningsId,
     ballNumber,
     strikerId,
     nonStrikerId,
     bowlerId,
     runsScored,
-    isExtra,
-    extraType,
-    wicket,
+    isWicket,
     wicketType,
+    assistPlayerId,
+    dismissedPlayerId,
+    isBye,
+    isLegBye,
+    isWide,
+    isNoBall,
   });
 
   // Update the scorecard
-  const scoreCardData = await updateScorecardAction({
-    id: scorecardId,
-    wickets: wicket ? wickets + 1 : wickets,
+  const isExtra = isWide || isNoBall;
+  const inningsData = await updateInningsAction({
+    id: inningsId,
+    wickets: isWicket ? wickets + 1 : wickets,
     balls: isExtra ? balls : balls + 1,
     extras: isExtra ? extras + 1 : extras,
-    target: target,
-    totalScore: totalScore + runsScored + (isExtra ? 1 : 0),
+    totalScore: totalScore + (runsScored || 0) + (isExtra ? 1 : 0),
   });
 
-  // Create a new ball
-  const newBallId = await createNewBallAction({
-    matchId,
-    scorecardId,
-    battingTeamId: teamId,
-    bowlingTeamId,
-    ballNumber: isExtra ? ballNumber : ballNumber + 1,
-    strikerId: runsScored % 2 === 1 ? nonStrikerId : strikerId,
-    nonStrikerId: runsScored % 2 === 1 ? strikerId : nonStrikerId,
-    bowlerId,
-  });
+  let path = `/play/matches/${matchId}/${inningsId}/${id}/new-batter`;
+  if (isWicket) {
+    // open new batter selection page
+    revalidatePath(path);
+    redirect(path);
+  } else if (!isExtra && ballNumber % 6 === 0) {
+    // open new bowler selection page
+    path = `/play/matches/${matchId}/${inningsId}/${id}/new-bowler`;
+    revalidatePath(path);
+    redirect(path);
+  } else {
+    // Create a new ball
+    const newBallId = await createNewBallAction({
+      inningsId,
+      ballNumber: isExtra ? ballNumber : ballNumber + 1,
+      strikerId: runsScored! % 2 === 1 ? nonStrikerId : strikerId,
+      nonStrikerId: runsScored! % 2 === 1 ? strikerId : nonStrikerId,
+      bowlerId,
+    });
 
-  const path = `/play/matches/${matchId}/${scoreCardData.id}/${newBallId}`;
-  revalidatePath(path);
-  redirect(path);
+    path = `/play/matches/${matchId}/${inningsData.id}/${newBallId}`;
+    revalidatePath(path);
+    redirect(path);
+  }
 }
 
 export async function onSelectCurrentBattersAndBowler({
@@ -125,11 +132,6 @@ export async function onSelectCurrentBattersAndBowler({
   bowlerId: number;
 }) {
   "use server";
-  console.log("matchId", matchId);
-  console.log("ballNumber", ballNumber);
-  console.log("strikerId", strikerId);
-  console.log("nonStrikerId", nonStrikerId);
-  console.log("bowlerId", bowlerId);
   // Find the match
   const match = await getMatchById(matchId);
   if (!match) {
@@ -137,30 +139,92 @@ export async function onSelectCurrentBattersAndBowler({
   }
 
   // Create a new scorecard for the match
-  const scorecardId = await createScorecardAction({
+  const inningsId = await createInningsAction({
     matchId: +matchId,
-    teamId: match.team_battingFirstTeamId.id,
+    battingTeamId: match.team1Id,
     wickets: 0,
     balls: 0,
     extras: 0,
-    target: 0,
     totalScore: 0,
   });
-  if (!scorecardId) {
+  if (!inningsId) {
     throw new Error("Scorecard not created");
   }
 
   // Create a new ball
   const ballId = await createNewBallAction({
-    matchId: +matchId,
-    scorecardId: scorecardId as unknown as number,
-    battingTeamId: match.team_battingFirstTeamId.id,
-    bowlingTeamId: bowlingTeamId,
+    inningsId: inningsId as unknown as number,
     ballNumber: ballNumber,
     strikerId,
     nonStrikerId,
     bowlerId,
   });
   revalidatePath(`/play/matches/${matchId}`);
-  redirect(`/play/matches/${matchId}/${scorecardId}/${ballId}`);
+  redirect(`/play/matches/${matchId}/${inningsId}/${ballId}`);
+}
+
+export async function onSelectNewBatter({
+  matchId,
+  inningsId,
+  isExtra,
+  ballNumber,
+  strikerId,
+  nonStrikerId,
+  bowlerId,
+}: {
+  matchId: number;
+  inningsId: number;
+  ballNumber: number;
+  isExtra: boolean;
+  strikerId: number;
+  nonStrikerId: number;
+  bowlerId: number;
+}) {
+  "use server";
+
+  // Create a new ball
+  const ballId = await createNewBallAction({
+    inningsId,
+    ballNumber: isExtra ? ballNumber : ballNumber + 1,
+    strikerId,
+    nonStrikerId,
+    bowlerId,
+  });
+  if (isExtra || ballNumber % 6 !== 0) {
+    revalidatePath(`/play/matches/${matchId}/${inningsId}/${ballId}`);
+    redirect(`/play/matches/${matchId}/${inningsId}/${ballId}`);
+  } else {
+    redirect(`/play/matches/${matchId}/${inningsId}/${ballId}/new-bowler`);
+  }
+}
+
+export async function onSelectNewBowler({
+  matchId,
+  inningsId,
+  ballNumber,
+  runScored,
+  strikerId,
+  nonStrikerId,
+  bowlerId,
+}: {
+  matchId: number;
+  inningsId: number;
+  ballNumber: number;
+  runScored: number;
+  strikerId: number;
+  nonStrikerId: number;
+  bowlerId: number;
+}) {
+  "use server";
+
+  // Create a new ball
+  const ballId = await createNewBallAction({
+    inningsId,
+    ballNumber: ballNumber + 1,
+    strikerId: runScored % 2 === 1 ? strikerId : nonStrikerId,
+    nonStrikerId: runScored % 2 === 1 ? nonStrikerId : strikerId,
+    bowlerId,
+  });
+  revalidatePath(`/play/matches/${matchId}/${inningsId}/${ballId}`);
+  redirect(`/play/matches/${matchId}/${inningsId}/${ballId}`);
 }

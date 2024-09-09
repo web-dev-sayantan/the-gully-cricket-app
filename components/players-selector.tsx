@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Player } from "@/db/schema";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 export default function PlayerSelector({
@@ -19,8 +19,26 @@ export default function PlayerSelector({
   ballNumber,
   onSelectCurrentBattersAndBowler,
 }: {
-  battingTeam: Player[];
-  bowlingTeam: Player[];
+  battingTeam: {
+    id: number;
+    teamId: number;
+    playerId: number;
+    isCaptain: boolean;
+    player: {
+      id: number;
+      name: string;
+    };
+  }[];
+  bowlingTeam: {
+    id: number;
+    teamId: number;
+    playerId: number;
+    isCaptain: boolean;
+    player: {
+      id: number;
+      name: string;
+    };
+  }[];
   matchId: number;
   bowlingTeamId: number;
   ballNumber: number;
@@ -40,44 +58,56 @@ export default function PlayerSelector({
     bowlerId: number;
   }) => Promise<void>;
 }) {
-  const [striker, setStriker] = useState<Player>();
-  const [nonStriker, setNonStriker] = useState<Player>();
-  const [bowler, setBowler] = useState<Player>();
+  const [strikerId, setStrikerId] = useState(0);
+  const [nonStrikerId, setNonStrikerId] = useState(0);
+  const [bowlerId, setBowlerId] = useState(0);
   return (
     <div className="w-full flex flex-col gap-4">
       <div className="flex flex-col gap-4 p-4 border">
         <h1 className="font-bold text-center">Striker: </h1>
         <Select
           onValueChange={(value) => {
-            setStriker(battingTeam.find((player) => player.id === +value));
+            if (+value === nonStrikerId) {
+              setNonStrikerId(0);
+            }
+            setStrikerId(+value);
           }}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select Striker" />
           </SelectTrigger>
           <SelectContent>
-            {battingTeam.map((player) => (
+            {battingTeam.map(({ player }) => (
               <SelectItem key={player.id} value={`${player.id}`}>
                 {player.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <h1 className="font-bold text-center">Non Striker: </h1>
+        <h1
+          className={cn("font-bold text-center", {
+            "text-muted-foreground": !strikerId,
+          })}
+        >
+          Non Striker:{" "}
+        </h1>
         <Select
+          disabled={!strikerId}
           onValueChange={(value) => {
-            setNonStriker(battingTeam.find((player) => player.id === +value));
+            setNonStrikerId(+value);
           }}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select Non Striker" />
           </SelectTrigger>
           <SelectContent>
-            {battingTeam.map((player) => (
-              <SelectItem key={player.id} value={`${player.id}`}>
-                {player.name}
-              </SelectItem>
-            ))}
+            {battingTeam
+              .filter(({ player }) => player.id !== strikerId)
+              .map(({ player }) => (
+                <SelectItem key={player.id} value={`${player.id}`}>
+                  {player.name}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
       </div>
@@ -85,14 +115,14 @@ export default function PlayerSelector({
         <h1 className="font-bold text-center">Bowler: </h1>
         <Select
           onValueChange={(value) => {
-            setBowler(bowlingTeam.find((player) => player.id === +value));
+            setBowlerId(+value);
           }}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select Bowler" />
           </SelectTrigger>
           <SelectContent>
-            {bowlingTeam.map((player) => (
+            {bowlingTeam.map(({ player }) => (
               <SelectItem key={player.id} value={`${player.id}`}>
                 {player.name}
               </SelectItem>
@@ -102,18 +132,18 @@ export default function PlayerSelector({
       </div>
       <Button
         className="w-full"
-        disabled={!striker || !nonStriker || !bowler}
+        disabled={!strikerId || !nonStrikerId || !bowlerId}
         onClick={() =>
-          striker &&
-          nonStriker &&
-          bowler &&
+          strikerId &&
+          nonStrikerId &&
+          bowlerId &&
           onSelectCurrentBattersAndBowler({
             matchId,
             bowlingTeamId,
             ballNumber,
-            strikerId: striker.id,
-            nonStrikerId: nonStriker.id,
-            bowlerId: bowler.id,
+            strikerId,
+            nonStrikerId,
+            bowlerId,
           })
         }
       >

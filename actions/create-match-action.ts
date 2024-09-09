@@ -3,35 +3,41 @@ import { matches } from "@/db/schema";
 
 export async function createMatchAction({
   matchDate,
-  tossWinner,
-  battingFirstTeam,
-  battingSecondTeam,
+  tossWinnerId,
+  tournamentId,
+  tossDecision,
+  team1Id,
+  team2Id,
   oversPerSide,
   maxOverPerBowler,
-  winner,
-  loser,
+  winnerId,
   result,
+  ranked,
 }: {
   matchDate?: Date;
-  tossWinner: number;
-  battingFirstTeam: number;
-  battingSecondTeam: number;
+  tournamentId?: number;
+  tossWinnerId: number;
+  tossDecision: string;
+  team1Id: number;
+  team2Id: number;
   oversPerSide: number;
   maxOverPerBowler: number;
-  winner?: number;
-  loser?: number;
+  winnerId?: number;
   result?: string;
+  ranked?: boolean;
 }) {
   const newMatch = await db.insert(matches).values({
     matchDate: matchDate ? new Date(matchDate) : new Date(),
-    tossWinnerId: tossWinner,
-    battingFirstTeamId: battingFirstTeam,
-    battingSecondTeamId: battingSecondTeam,
+    tournamentId,
+    tossWinnerId,
+    tossDecision,
+    team1Id,
+    team2Id,
     oversPerSide,
-    maxOverPerBowler: maxOverPerBowler,
-    winner,
-    loser,
+    maxOverPerBowler,
+    winnerId,
     result,
+    ranked,
   });
 
   return newMatch.rows;

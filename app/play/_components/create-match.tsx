@@ -1,8 +1,7 @@
 "use client";
-import { Team } from "@/db/schema";
 import { MatchFormSchema } from "@/schema/match-form-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { startTransition, useRef } from "react";
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -33,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { format, subDays } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { Team } from "@/db/types";
 
 export default function QuickMatchForm({
   teams,
@@ -57,9 +57,10 @@ export default function QuickMatchForm({
     resolver: zodResolver(MatchFormSchema),
     defaultValues: {
       matchDate: new Date(),
-      tossWinner: 1,
-      battingFirstTeam: 1,
-      battingSecondTeam: 2,
+      tossWinnerId: 1,
+      tossDecision: "bat",
+      team1Id: 1,
+      team2Id: 2,
       oversPerSide: 6,
       maxOverPerBowler: 2,
     },
@@ -119,7 +120,7 @@ export default function QuickMatchForm({
 
         <FormField
           control={form.control}
-          name="battingFirstTeam"
+          name="team1Id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Batting First Team</FormLabel>
@@ -148,7 +149,7 @@ export default function QuickMatchForm({
 
         <FormField
           control={form.control}
-          name="battingSecondTeam"
+          name="team2Id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Batting Second Team</FormLabel>
@@ -177,7 +178,7 @@ export default function QuickMatchForm({
 
         <FormField
           control={form.control}
-          name="tossWinner"
+          name="tossWinnerId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Toss Winner</FormLabel>
@@ -196,6 +197,36 @@ export default function QuickMatchForm({
                         {team.name}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        ></FormField>
+
+        <FormField
+          control={form.control}
+          name="tossDecision"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Toss Decision</FormLabel>
+              <FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value}
+                  name={field.name}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Decision" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem key="bat" value="bat">
+                      Bat First
+                    </SelectItem>
+                    <SelectItem key="bowl" value="bowl">
+                      Field First
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>

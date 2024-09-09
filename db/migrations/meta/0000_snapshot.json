@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "e07bba4a-cd81-4ffb-8d2d-67606cb1805d",
+  "id": "a2db1f12-22fb-42cf-94dc-cf9adb7f18e7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "balls": {
@@ -14,29 +14,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "match_id": {
-          "name": "match_id",
+        "innings_id": {
+          "name": "innings_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "scorecard_id": {
-          "name": "scorecard_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "batting_team_id": {
-          "name": "batting_team_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "bowling_team_id": {
-          "name": "bowling_team_id",
+        "ball_number": {
+          "name": "ball_number",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -63,13 +49,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "ball_number": {
-          "name": "ball_number",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
         "runs_scored": {
           "name": "runs_scored",
           "type": "integer",
@@ -78,8 +57,8 @@
           "autoincrement": false,
           "default": 0
         },
-        "wicket": {
-          "name": "wicket",
+        "is_wicket": {
+          "name": "is_wicket",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -93,122 +72,82 @@
           "notNull": false,
           "autoincrement": false
         },
-        "caught_by": {
-          "name": "caught_by",
+        "dismissed_player_id": {
+          "name": "dismissed_player_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "run_out_by": {
-          "name": "run_out_by",
+        "assist_player_id": {
+          "name": "assist_player_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "stumped_by": {
-          "name": "stumped_by",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "is_extra": {
-          "name": "is_extra",
+        "is_wide": {
+          "name": "is_wide",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
           "default": false
         },
-        "extra_type": {
-          "name": "extra_type",
-          "type": "text",
+        "is_no_ball": {
+          "name": "is_no_ball",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "is_bye": {
+          "name": "is_bye",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "is_leg_bye": {
+          "name": "is_leg_bye",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
         }
       },
       "indexes": {
         "over_idx": {
           "name": "over_idx",
           "columns": [
-            "match_id",
+            "innings_id",
             "bowler_id"
           ],
           "isUnique": false
         },
-        "match_idx": {
-          "name": "match_idx",
+        "innings_idx": {
+          "name": "innings_idx",
           "columns": [
-            "match_id",
-            "batting_team_id"
-          ],
-          "isUnique": false
-        },
-        "match_team_ball_number_idx": {
-          "name": "match_team_ball_number_idx",
-          "columns": [
-            "match_id",
-            "batting_team_id",
-            "bowling_team_id",
-            "ball_number"
+            "innings_id"
           ],
           "isUnique": false
         }
       },
       "foreignKeys": {
-        "balls_match_id_matches_id_fk": {
-          "name": "balls_match_id_matches_id_fk",
+        "balls_innings_id_innings_id_fk": {
+          "name": "balls_innings_id_innings_id_fk",
           "tableFrom": "balls",
-          "tableTo": "matches",
+          "tableTo": "innings",
           "columnsFrom": [
-            "match_id"
+            "innings_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "balls_scorecard_id_score_card_id_fk": {
-          "name": "balls_scorecard_id_score_card_id_fk",
-          "tableFrom": "balls",
-          "tableTo": "score_card",
-          "columnsFrom": [
-            "scorecard_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "balls_batting_team_id_teams_id_fk": {
-          "name": "balls_batting_team_id_teams_id_fk",
-          "tableFrom": "balls",
-          "tableTo": "teams",
-          "columnsFrom": [
-            "batting_team_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "balls_bowling_team_id_teams_id_fk": {
-          "name": "balls_bowling_team_id_teams_id_fk",
-          "tableFrom": "balls",
-          "tableTo": "teams",
-          "columnsFrom": [
-            "bowling_team_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
         "balls_striker_id_players_id_fk": {
@@ -221,7 +160,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
         "balls_non_striker_id_players_id_fk": {
@@ -234,7 +173,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
         "balls_bowler_id_players_id_fk": {
@@ -247,46 +186,130 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "balls_caught_by_players_id_fk": {
-          "name": "balls_caught_by_players_id_fk",
+        "balls_dismissed_player_id_players_id_fk": {
+          "name": "balls_dismissed_player_id_players_id_fk",
           "tableFrom": "balls",
           "tableTo": "players",
           "columnsFrom": [
-            "caught_by"
+            "dismissed_player_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "balls_run_out_by_players_id_fk": {
-          "name": "balls_run_out_by_players_id_fk",
+        "balls_assist_player_id_players_id_fk": {
+          "name": "balls_assist_player_id_players_id_fk",
           "tableFrom": "balls",
           "tableTo": "players",
           "columnsFrom": [
-            "run_out_by"
+            "assist_player_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "innings": {
+      "name": "innings",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
         },
-        "balls_stumped_by_players_id_fk": {
-          "name": "balls_stumped_by_players_id_fk",
-          "tableFrom": "balls",
-          "tableTo": "players",
+        "match_id": {
+          "name": "match_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "batting_team_id": {
+          "name": "batting_team_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "total_runs": {
+          "name": "total_runs",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "wickets": {
+          "name": "wickets",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "overs": {
+          "name": "overs",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "extras": {
+          "name": "extras",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "match_idx": {
+          "name": "match_idx",
+          "columns": [
+            "match_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "innings_match_id_matches_id_fk": {
+          "name": "innings_match_id_matches_id_fk",
+          "tableFrom": "innings",
+          "tableTo": "matches",
           "columnsFrom": [
-            "stumped_by"
+            "match_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "innings_batting_team_id_teams_id_fk": {
+          "name": "innings_batting_team_id_teams_id_fk",
+          "tableFrom": "innings",
+          "tableTo": "teams",
+          "columnsFrom": [
+            "batting_team_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -303,6 +326,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "tournament_id": {
+          "name": "tournament_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "match_date": {
           "name": "match_date",
           "type": "integer",
@@ -317,15 +347,22 @@
           "notNull": true,
           "autoincrement": false
         },
-        "batting_first_team_id": {
-          "name": "batting_first_team_id",
+        "toss_decision": {
+          "name": "toss_decision",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "team1_id": {
+          "name": "team1_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "batting_second_team_id": {
-          "name": "batting_second_team_id",
+        "team2_id": {
+          "name": "team2_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -354,23 +391,45 @@
           "notNull": false,
           "autoincrement": false
         },
-        "winner": {
-          "name": "winner",
+        "winner_id": {
+          "name": "winner_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "loser": {
-          "name": "loser",
+        "ranked": {
+          "name": "ranked",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "rank_idx": {
+          "name": "rank_idx",
+          "columns": [
+            "winner_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
+        "matches_tournament_id_tournaments_id_fk": {
+          "name": "matches_tournament_id_tournaments_id_fk",
+          "tableFrom": "matches",
+          "tableTo": "tournaments",
+          "columnsFrom": [
+            "tournament_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "matches_toss_winner_id_teams_id_fk": {
           "name": "matches_toss_winner_id_teams_id_fk",
           "tableFrom": "matches",
@@ -381,67 +440,54 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "matches_batting_first_team_id_teams_id_fk": {
-          "name": "matches_batting_first_team_id_teams_id_fk",
+        "matches_team1_id_teams_id_fk": {
+          "name": "matches_team1_id_teams_id_fk",
           "tableFrom": "matches",
           "tableTo": "teams",
           "columnsFrom": [
-            "batting_first_team_id"
+            "team1_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "matches_batting_second_team_id_teams_id_fk": {
-          "name": "matches_batting_second_team_id_teams_id_fk",
+        "matches_team2_id_teams_id_fk": {
+          "name": "matches_team2_id_teams_id_fk",
           "tableFrom": "matches",
           "tableTo": "teams",
           "columnsFrom": [
-            "batting_second_team_id"
+            "team2_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "matches_winner_teams_id_fk": {
-          "name": "matches_winner_teams_id_fk",
+        "matches_winner_id_teams_id_fk": {
+          "name": "matches_winner_id_teams_id_fk",
           "tableFrom": "matches",
           "tableTo": "teams",
           "columnsFrom": [
-            "winner"
+            "winner_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "matches_loser_teams_id_fk": {
-          "name": "matches_loser_teams_id_fk",
-          "tableFrom": "matches",
-          "tableTo": "teams",
-          "columnsFrom": [
-            "loser"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "player_performance": {
-      "name": "player_performance",
+    "player_career_stats": {
+      "name": "player_career_stats",
       "columns": {
         "id": {
           "name": "id",
@@ -457,28 +503,20 @@
           "notNull": true,
           "autoincrement": false
         },
-        "score_card_id": {
-          "name": "score_card_id",
-          "type": "integer",
+        "format": {
+          "name": "format",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "batting_position": {
-          "name": "batting_position",
+        "matches_played": {
+          "name": "matches_played",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1
-        },
-        "did_bat": {
-          "name": "did_bat",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
+          "default": 0
         },
         "runs_scored": {
           "name": "runs_scored",
@@ -491,6 +529,216 @@
         "balls_faced": {
           "name": "balls_faced",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "fours": {
+          "name": "fours",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "sixes": {
+          "name": "sixes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "avg_strike_rate": {
+          "name": "avg_strike_rate",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "highest_score": {
+          "name": "highest_score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "fifties": {
+          "name": "fifties",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "hundreds": {
+          "name": "hundreds",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "balls_bowled": {
+          "name": "balls_bowled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "runs_conceded": {
+          "name": "runs_conceded",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "wickets_taken": {
+          "name": "wickets_taken",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "avg_economy": {
+          "name": "avg_economy",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "best_bowling": {
+          "name": "best_bowling",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "fifers": {
+          "name": "fifers",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "catches": {
+          "name": "catches",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "run_outs": {
+          "name": "run_outs",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "stumpings": {
+          "name": "stumpings",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "player_career_stats_player_id_players_id_fk": {
+          "name": "player_career_stats_player_id_players_id_fk",
+          "tableFrom": "player_career_stats",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "player_match_performance": {
+      "name": "player_match_performance",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "match_id": {
+          "name": "match_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "player_id": {
+          "name": "player_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "team_id": {
+          "name": "team_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "runs_scored": {
+          "name": "runs_scored",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "balls_faced": {
+          "name": "balls_faced",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "fours": {
+          "name": "fours",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "sixes": {
+          "name": "sixes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "strike_rate": {
+          "name": "strike_rate",
+          "type": "real",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
@@ -518,28 +766,239 @@
           "notNull": false,
           "autoincrement": false
         },
-        "dismissal_supported_by": {
-          "name": "dismissal_supported_by",
+        "balls_bowled": {
+          "name": "balls_bowled",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "runs_conceded": {
+          "name": "runs_conceded",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "wickets_taken": {
+          "name": "wickets_taken",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "economy": {
+          "name": "economy",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "dot_balls": {
+          "name": "dot_balls",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "boundaries_conceded": {
+          "name": "boundaries_conceded",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "catches": {
+          "name": "catches",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "run_outs": {
+          "name": "run_outs",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "stumpings": {
+          "name": "stumpings",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "player_match_performance_match_id_matches_id_fk": {
+          "name": "player_match_performance_match_id_matches_id_fk",
+          "tableFrom": "player_match_performance",
+          "tableTo": "matches",
+          "columnsFrom": [
+            "match_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "player_match_performance_player_id_players_id_fk": {
+          "name": "player_match_performance_player_id_players_id_fk",
+          "tableFrom": "player_match_performance",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "player_match_performance_team_id_teams_id_fk": {
+          "name": "player_match_performance_team_id_teams_id_fk",
+          "tableFrom": "player_match_performance",
+          "tableTo": "teams",
+          "columnsFrom": [
+            "team_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "player_match_performance_dismissed_by_players_id_fk": {
+          "name": "player_match_performance_dismissed_by_players_id_fk",
+          "tableFrom": "player_match_performance",
+          "tableTo": "players",
+          "columnsFrom": [
+            "dismissed_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "player_tournament_stats": {
+      "name": "player_tournament_stats",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
           "autoincrement": false
         },
-        "did_bowl": {
-          "name": "did_bowl",
+        "player_id": {
+          "name": "player_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": false
+          "autoincrement": false
         },
-        "bowling_position": {
-          "name": "bowling_position",
+        "tournament_id": {
+          "name": "tournament_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "team_id": {
+          "name": "team_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "matches_played": {
+          "name": "matches_played",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 1
+          "default": 0
+        },
+        "runs_scored": {
+          "name": "runs_scored",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "balls_faced": {
+          "name": "balls_faced",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "fours": {
+          "name": "fours",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "sixes": {
+          "name": "sixes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "avg_strike_rate": {
+          "name": "avg_strike_rate",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "highest_score": {
+          "name": "highest_score",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "fifties": {
+          "name": "fifties",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "hundreds": {
+          "name": "hundreds",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
         },
         "balls_bowled": {
           "name": "balls_bowled",
@@ -565,8 +1024,47 @@
           "autoincrement": false,
           "default": 0
         },
-        "maidens": {
-          "name": "maidens",
+        "avg_economy": {
+          "name": "avg_economy",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "best_bowling": {
+          "name": "best_bowling",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "fifers": {
+          "name": "fifers",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "catches": {
+          "name": "catches",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "run_outs": {
+          "name": "run_outs",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "stumpings": {
+          "name": "stumpings",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -574,35 +1072,11 @@
           "default": 0
         }
       },
-      "indexes": {
-        "player_performance_player_id_score_card_id_unique": {
-          "name": "player_performance_player_id_score_card_id_unique",
-          "columns": [
-            "player_id",
-            "score_card_id"
-          ],
-          "isUnique": true
-        },
-        "player_idx": {
-          "name": "player_idx",
-          "columns": [
-            "player_id"
-          ],
-          "isUnique": false
-        },
-        "player_score_idx": {
-          "name": "player_score_idx",
-          "columns": [
-            "player_id",
-            "score_card_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
-        "player_performance_player_id_players_id_fk": {
-          "name": "player_performance_player_id_players_id_fk",
-          "tableFrom": "player_performance",
+        "player_tournament_stats_player_id_players_id_fk": {
+          "name": "player_tournament_stats_player_id_players_id_fk",
+          "tableFrom": "player_tournament_stats",
           "tableTo": "players",
           "columnsFrom": [
             "player_id"
@@ -610,46 +1084,33 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "player_performance_score_card_id_score_card_id_fk": {
-          "name": "player_performance_score_card_id_score_card_id_fk",
-          "tableFrom": "player_performance",
-          "tableTo": "score_card",
+        "player_tournament_stats_tournament_id_tournaments_id_fk": {
+          "name": "player_tournament_stats_tournament_id_tournaments_id_fk",
+          "tableFrom": "player_tournament_stats",
+          "tableTo": "tournaments",
           "columnsFrom": [
-            "score_card_id"
+            "tournament_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "player_performance_dismissed_by_players_id_fk": {
-          "name": "player_performance_dismissed_by_players_id_fk",
-          "tableFrom": "player_performance",
-          "tableTo": "players",
+        "player_tournament_stats_team_id_teams_id_fk": {
+          "name": "player_tournament_stats_team_id_teams_id_fk",
+          "tableFrom": "player_tournament_stats",
+          "tableTo": "teams",
           "columnsFrom": [
-            "dismissed_by"
+            "team_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "player_performance_dismissal_supported_by_players_id_fk": {
-          "name": "player_performance_dismissal_supported_by_players_id_fk",
-          "tableFrom": "player_performance",
-          "tableTo": "players",
-          "columnsFrom": [
-            "dismissal_supported_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -702,102 +1163,6 @@
           "notNull": true,
           "autoincrement": false,
           "default": false
-        },
-        "matches_played": {
-          "name": "matches_played",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "runs_scored": {
-          "name": "runs_scored",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "balls_faced": {
-          "name": "balls_faced",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "times_dismissed": {
-          "name": "times_dismissed",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "fifties": {
-          "name": "fifties",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "hundreds": {
-          "name": "hundreds",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "wickets_taken": {
-          "name": "wickets_taken",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "balls_bowled": {
-          "name": "balls_bowled",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "fifers": {
-          "name": "fifers",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "catches_taken": {
-          "name": "catches_taken",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "run_outs": {
-          "name": "run_outs",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "stumpings": {
-          "name": "stumpings",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
         }
       },
       "indexes": {},
@@ -805,20 +1170,13 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "score_card": {
-      "name": "score_card",
+    "team_players": {
+      "name": "team_players",
       "columns": {
         "id": {
           "name": "id",
           "type": "integer",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "match_id": {
-          "name": "match_id",
-          "type": "integer",
-          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -829,74 +1187,36 @@
           "notNull": true,
           "autoincrement": false
         },
-        "total_score": {
-          "name": "total_score",
+        "player_id": {
+          "name": "player_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "autoincrement": false
         },
-        "wickets": {
-          "name": "wickets",
+        "is_captain": {
+          "name": "is_captain",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": 0
-        },
-        "balls": {
-          "name": "balls",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "target": {
-          "name": "target",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "extras": {
-          "name": "extras",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "default": false
         }
       },
       "indexes": {
-        "score_card_match_id_team_id_unique": {
-          "name": "score_card_match_id_team_id_unique",
+        "unique_team_player": {
+          "name": "unique_team_player",
           "columns": [
-            "match_id",
-            "team_id"
+            "team_id",
+            "player_id"
           ],
           "isUnique": true
         }
       },
       "foreignKeys": {
-        "score_card_match_id_matches_id_fk": {
-          "name": "score_card_match_id_matches_id_fk",
-          "tableFrom": "score_card",
-          "tableTo": "matches",
-          "columnsFrom": [
-            "match_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "score_card_team_id_teams_id_fk": {
-          "name": "score_card_team_id_teams_id_fk",
-          "tableFrom": "score_card",
+        "team_players_team_id_teams_id_fk": {
+          "name": "team_players_team_id_teams_id_fk",
+          "tableFrom": "team_players",
           "tableTo": "teams",
           "columnsFrom": [
             "team_id"
@@ -904,7 +1224,20 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "team_players_player_id_players_id_fk": {
+          "name": "team_players_player_id_players_id_fk",
+          "tableFrom": "team_players",
+          "tableTo": "players",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -934,251 +1267,159 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "tournamentTeams": {
+      "name": "tournamentTeams",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
         },
-        "captain": {
-          "name": "captain",
+        "tournamentId": {
+          "name": "tournamentId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "player_1": {
-          "name": "player_1",
+        "teamId": {
+          "name": "teamId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "player_2": {
-          "name": "player_2",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "player_3": {
-          "name": "player_3",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "player_4": {
-          "name": "player_4",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "player_5": {
-          "name": "player_5",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "player_6": {
-          "name": "player_6",
+        "points": {
+          "name": "points",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": 0
         },
-        "player_7": {
-          "name": "player_7",
+        "matchesPlayed": {
+          "name": "matchesPlayed",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": 0
         },
-        "player_8": {
-          "name": "player_8",
+        "matchesWon": {
+          "name": "matchesWon",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": 0
         },
-        "player_9": {
-          "name": "player_9",
+        "matchesLost": {
+          "name": "matchesLost",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": 0
         },
-        "player_10": {
-          "name": "player_10",
+        "matchesTied": {
+          "name": "matchesTied",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": 0
         },
-        "player_11": {
-          "name": "player_11",
+        "matchesDrawn": {
+          "name": "matchesDrawn",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": 0
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "teams_captain_players_id_fk": {
-          "name": "teams_captain_players_id_fk",
-          "tableFrom": "teams",
-          "tableTo": "players",
+        "tournamentTeams_tournamentId_tournaments_id_fk": {
+          "name": "tournamentTeams_tournamentId_tournaments_id_fk",
+          "tableFrom": "tournamentTeams",
+          "tableTo": "tournaments",
           "columnsFrom": [
-            "captain"
+            "tournamentId"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "teams_player_1_players_id_fk": {
-          "name": "teams_player_1_players_id_fk",
-          "tableFrom": "teams",
-          "tableTo": "players",
+        "tournamentTeams_teamId_teams_id_fk": {
+          "name": "tournamentTeams_teamId_teams_id_fk",
+          "tableFrom": "tournamentTeams",
+          "tableTo": "teams",
           "columnsFrom": [
-            "player_1"
+            "teamId"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "teams_player_2_players_id_fk": {
-          "name": "teams_player_2_players_id_fk",
-          "tableFrom": "teams",
-          "tableTo": "players",
-          "columnsFrom": [
-            "player_2"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "teams_player_3_players_id_fk": {
-          "name": "teams_player_3_players_id_fk",
-          "tableFrom": "teams",
-          "tableTo": "players",
-          "columnsFrom": [
-            "player_3"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "teams_player_4_players_id_fk": {
-          "name": "teams_player_4_players_id_fk",
-          "tableFrom": "teams",
-          "tableTo": "players",
-          "columnsFrom": [
-            "player_4"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "teams_player_5_players_id_fk": {
-          "name": "teams_player_5_players_id_fk",
-          "tableFrom": "teams",
-          "tableTo": "players",
-          "columnsFrom": [
-            "player_5"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "teams_player_6_players_id_fk": {
-          "name": "teams_player_6_players_id_fk",
-          "tableFrom": "teams",
-          "tableTo": "players",
-          "columnsFrom": [
-            "player_6"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "teams_player_7_players_id_fk": {
-          "name": "teams_player_7_players_id_fk",
-          "tableFrom": "teams",
-          "tableTo": "players",
-          "columnsFrom": [
-            "player_7"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "teams_player_8_players_id_fk": {
-          "name": "teams_player_8_players_id_fk",
-          "tableFrom": "teams",
-          "tableTo": "players",
-          "columnsFrom": [
-            "player_8"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "teams_player_9_players_id_fk": {
-          "name": "teams_player_9_players_id_fk",
-          "tableFrom": "teams",
-          "tableTo": "players",
-          "columnsFrom": [
-            "player_9"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "teams_player_10_players_id_fk": {
-          "name": "teams_player_10_players_id_fk",
-          "tableFrom": "teams",
-          "tableTo": "players",
-          "columnsFrom": [
-            "player_10"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "teams_player_11_players_id_fk": {
-          "name": "teams_player_11_players_id_fk",
-          "tableFrom": "teams",
-          "tableTo": "players",
-          "columnsFrom": [
-            "player_11"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "tournaments": {
+      "name": "tournaments",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "format": {
+          "name": "format",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     }

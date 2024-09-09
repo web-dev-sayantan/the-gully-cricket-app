@@ -1,274 +1,191 @@
-import { relations } from "drizzle-orm/relations";
+import { relations } from "drizzle-orm";
 import {
-  players,
-  balls,
+  tournaments,
   teams,
+  players,
   matches,
-  playerPerformance,
-  scoreCard,
+  innings,
+  balls,
+  tournamentTeams,
+  teamPlayers,
+  playerMatchPerformance,
+  playerTournamentStats,
+  playerCareerStats,
 } from "./schema";
 
-export const ballsRelations = relations(balls, ({ one }) => ({
-  player_stumpedBy: one(players, {
-    fields: [balls.stumpedBy],
-    references: [players.id],
-    relationName: "balls_stumpedBy_players_id",
-  }),
-  player_runOutBy: one(players, {
-    fields: [balls.runOutBy],
-    references: [players.id],
-    relationName: "balls_runOutBy_players_id",
-  }),
-  player_caughtBy: one(players, {
-    fields: [balls.caughtBy],
-    references: [players.id],
-    relationName: "balls_caughtBy_players_id",
-  }),
-  player_bowlerId: one(players, {
-    fields: [balls.bowlerId],
-    references: [players.id],
-    relationName: "balls_bowlerId_players_id",
-  }),
-  player_nonStrikerId: one(players, {
-    fields: [balls.nonStrikerId],
-    references: [players.id],
-    relationName: "balls_nonStrikerId_players_id",
-  }),
-  player_strikerId: one(players, {
-    fields: [balls.strikerId],
-    references: [players.id],
-    relationName: "balls_strikerId_players_id",
-  }),
-  team_bowlingTeamId: one(teams, {
-    fields: [balls.bowlingTeamId],
-    references: [teams.id],
-    relationName: "balls_bowlingTeamId_teams_id",
-  }),
-  team_battingTeamId: one(teams, {
-    fields: [balls.battingTeamId],
-    references: [teams.id],
-    relationName: "balls_battingTeamId_teams_id",
-  }),
-  match: one(matches, {
-    fields: [balls.matchId],
-    references: [matches.id],
-  }),
+// Tournament relations
+export const tournamentRelations = relations(tournaments, ({ many }) => ({
+  matches: many(matches),
+  tournamentTeams: many(tournamentTeams),
 }));
 
-export const playersRelations = relations(players, ({ many }) => ({
-  balls_stumpedBy: many(balls, {
-    relationName: "balls_stumpedBy_players_id",
-  }),
-  balls_runOutBy: many(balls, {
-    relationName: "balls_runOutBy_players_id",
-  }),
-  balls_caughtBy: many(balls, {
-    relationName: "balls_caughtBy_players_id",
-  }),
-  balls_bowlerId: many(balls, {
-    relationName: "balls_bowlerId_players_id",
-  }),
-  balls_nonStrikerId: many(balls, {
-    relationName: "balls_nonStrikerId_players_id",
-  }),
-  balls_strikerId: many(balls, {
-    relationName: "balls_strikerId_players_id",
-  }),
-  playerPerformances_dismissalSupportedBy: many(playerPerformance, {
-    relationName: "playerPerformance_dismissalSupportedBy_players_id",
-  }),
-  playerPerformances_dismissedBy: many(playerPerformance, {
-    relationName: "playerPerformance_dismissedBy_players_id",
-  }),
-  playerPerformances_playerId: many(playerPerformance, {
-    relationName: "playerPerformance_playerId_players_id",
-  }),
-  teams_player11: many(teams, {
-    relationName: "teams_player11_players_id",
-  }),
-  teams_player10: many(teams, {
-    relationName: "teams_player10_players_id",
-  }),
-  teams_player9: many(teams, {
-    relationName: "teams_player9_players_id",
-  }),
-  teams_player8: many(teams, {
-    relationName: "teams_player8_players_id",
-  }),
-  teams_player7: many(teams, {
-    relationName: "teams_player7_players_id",
-  }),
-  teams_player6: many(teams, {
-    relationName: "teams_player6_players_id",
-  }),
-  teams_player5: many(teams, {
-    relationName: "teams_player5_players_id",
-  }),
-  teams_player4: many(teams, {
-    relationName: "teams_player4_players_id",
-  }),
-  teams_player3: many(teams, {
-    relationName: "teams_player3_players_id",
-  }),
-  teams_player2: many(teams, {
-    relationName: "teams_player2_players_id",
-  }),
-  teams_player1: many(teams, {
-    relationName: "teams_player1_players_id",
-  }),
-  teams_captain: many(teams, {
-    relationName: "teams_captain_players_id",
-  }),
+// Team relations
+export const teamRelations = relations(teams, ({ many }) => ({
+  tournamentTeams: many(tournamentTeams),
+  teamPlayers: many(teamPlayers),
+  homeMatches: many(matches, { relationName: "homeTeam" }),
+  awayMatches: many(matches, { relationName: "awayTeam" }),
+  tossWins: many(matches, { relationName: "tossWinner" }),
+  matchWins: many(matches, { relationName: "winner" }),
+  innings: many(innings, { relationName: "battingTeam" }),
 }));
 
-export const teamsRelations = relations(teams, ({ one, many }) => ({
-  balls_bowlingTeamId: many(balls, {
-    relationName: "balls_bowlingTeamId_teams_id",
-  }),
-  balls_battingTeamId: many(balls, {
-    relationName: "balls_battingTeamId_teams_id",
-  }),
-  player_player11: one(players, {
-    fields: [teams.player11],
-    references: [players.id],
-    relationName: "teams_player11_players_id",
-  }),
-  player_player10: one(players, {
-    fields: [teams.player10],
-    references: [players.id],
-    relationName: "teams_player10_players_id",
-  }),
-  player_player9: one(players, {
-    fields: [teams.player9],
-    references: [players.id],
-    relationName: "teams_player9_players_id",
-  }),
-  player_player8: one(players, {
-    fields: [teams.player8],
-    references: [players.id],
-    relationName: "teams_player8_players_id",
-  }),
-  player_player7: one(players, {
-    fields: [teams.player7],
-    references: [players.id],
-    relationName: "teams_player7_players_id",
-  }),
-  player_player6: one(players, {
-    fields: [teams.player6],
-    references: [players.id],
-    relationName: "teams_player6_players_id",
-  }),
-  player_player5: one(players, {
-    fields: [teams.player5],
-    references: [players.id],
-    relationName: "teams_player5_players_id",
-  }),
-  player_player4: one(players, {
-    fields: [teams.player4],
-    references: [players.id],
-    relationName: "teams_player4_players_id",
-  }),
-  player_player3: one(players, {
-    fields: [teams.player3],
-    references: [players.id],
-    relationName: "teams_player3_players_id",
-  }),
-  player_player2: one(players, {
-    fields: [teams.player2],
-    references: [players.id],
-    relationName: "teams_player2_players_id",
-  }),
-  player_player1: one(players, {
-    fields: [teams.player1],
-    references: [players.id],
-    relationName: "teams_player1_players_id",
-  }),
-  player_captain: one(players, {
-    fields: [teams.captain],
-    references: [players.id],
-    relationName: "teams_captain_players_id",
-  }),
-  matches_loser: many(matches, {
-    relationName: "matches_loser_teams_id",
-  }),
-  matches_winner: many(matches, {
-    relationName: "matches_winner_teams_id",
-  }),
-  matches_battingSecondTeamId: many(matches, {
-    relationName: "matches_battingSecondTeamId_teams_id",
-  }),
-  matches_battingFirstTeamId: many(matches, {
-    relationName: "matches_battingFirstTeamId_teams_id",
-  }),
-  matches_tossWinnerId: many(matches, {
-    relationName: "matches_tossWinnerId_teams_id",
-  }),
-  scoreCards: many(scoreCard),
+// Player relations
+export const playerRelations = relations(players, ({ many }) => ({
+  teamPlayers: many(teamPlayers),
+  strikerBalls: many(balls, { relationName: "striker" }),
+  nonStrikerBalls: many(balls, { relationName: "nonStriker" }),
+  bowlerBalls: many(balls, { relationName: "bowler" }),
+  dismissedBalls: many(balls, { relationName: "dismissedPlayer" }),
+  assistBalls: many(balls, { relationName: "assistPlayer" }),
+  matchPerformances: many(playerMatchPerformance),
+  tournamentStats: many(playerTournamentStats),
+  careerStats: many(playerCareerStats),
 }));
 
-export const matchesRelations = relations(matches, ({ one, many }) => ({
-  balls: many(balls),
-  team_loser: one(teams, {
-    fields: [matches.loser],
-    references: [teams.id],
-    relationName: "matches_loser_teams_id",
+// Match relations
+export const matchRelations = relations(matches, ({ one, many }) => ({
+  tournament: one(tournaments, {
+    fields: [matches.tournamentId],
+    references: [tournaments.id],
   }),
-  team_winner: one(teams, {
-    fields: [matches.winner],
-    references: [teams.id],
-    relationName: "matches_winner_teams_id",
-  }),
-  team_battingSecondTeamId: one(teams, {
-    fields: [matches.battingSecondTeamId],
-    references: [teams.id],
-    relationName: "matches_battingSecondTeamId_teams_id",
-  }),
-  team_battingFirstTeamId: one(teams, {
-    fields: [matches.battingFirstTeamId],
-    references: [teams.id],
-    relationName: "matches_battingFirstTeamId_teams_id",
-  }),
-  team_tossWinnerId: one(teams, {
+  tossWinner: one(teams, {
     fields: [matches.tossWinnerId],
     references: [teams.id],
-    relationName: "matches_tossWinnerId_teams_id",
   }),
-  scoreCards: many(scoreCard),
+  team1: one(teams, {
+    fields: [matches.team1Id],
+    references: [teams.id],
+  }),
+  team2: one(teams, {
+    fields: [matches.team2Id],
+    references: [teams.id],
+  }),
+  winner: one(teams, {
+    fields: [matches.winnerId],
+    references: [teams.id],
+  }),
+  innings: many(innings),
+  playerPerformances: many(playerMatchPerformance),
 }));
 
-export const playerPerformanceRelations = relations(
-  playerPerformance,
+// Innings relations
+export const inningsRelations = relations(innings, ({ one, many }) => ({
+  match: one(matches, {
+    fields: [innings.matchId],
+    references: [matches.id],
+  }),
+  battingTeam: one(teams, {
+    fields: [innings.battingTeamId],
+    references: [teams.id],
+  }),
+  balls: many(balls),
+}));
+
+// Ball relations
+export const ballRelations = relations(balls, ({ one }) => ({
+  innings: one(innings, {
+    fields: [balls.inningsId],
+    references: [innings.id],
+  }),
+  striker: one(players, {
+    fields: [balls.strikerId],
+    references: [players.id],
+  }),
+  nonStriker: one(players, {
+    fields: [balls.nonStrikerId],
+    references: [players.id],
+  }),
+  bowler: one(players, {
+    fields: [balls.bowlerId],
+    references: [players.id],
+  }),
+  dismissedPlayer: one(players, {
+    fields: [balls.dismissedPlayerId],
+    references: [players.id],
+  }),
+  assistPlayer: one(players, {
+    fields: [balls.assistPlayerId],
+    references: [players.id],
+  }),
+}));
+
+// TournamentTeam relations
+export const tournamentTeamRelations = relations(
+  tournamentTeams,
   ({ one }) => ({
-    player_dismissalSupportedBy: one(players, {
-      fields: [playerPerformance.dismissalSupportedBy],
-      references: [players.id],
-      relationName: "playerPerformance_dismissalSupportedBy_players_id",
+    tournament: one(tournaments, {
+      fields: [tournamentTeams.tournamentId],
+      references: [tournaments.id],
     }),
-    player_dismissedBy: one(players, {
-      fields: [playerPerformance.dismissedBy],
-      references: [players.id],
-      relationName: "playerPerformance_dismissedBy_players_id",
-    }),
-    scoreCard: one(scoreCard, {
-      fields: [playerPerformance.scoreCardId],
-      references: [scoreCard.id],
-    }),
-    player_playerId: one(players, {
-      fields: [playerPerformance.playerId],
-      references: [players.id],
-      relationName: "playerPerformance_playerId_players_id",
+    team: one(teams, {
+      fields: [tournamentTeams.teamId],
+      references: [teams.id],
     }),
   })
 );
 
-export const scoreCardRelations = relations(scoreCard, ({ one, many }) => ({
-  playerPerformances: many(playerPerformance),
+// TeamPlayer relations
+export const teamPlayerRelations = relations(teamPlayers, ({ one }) => ({
   team: one(teams, {
-    fields: [scoreCard.teamId],
+    fields: [teamPlayers.teamId],
     references: [teams.id],
   }),
-  match: one(matches, {
-    fields: [scoreCard.matchId],
-    references: [matches.id],
+  player: one(players, {
+    fields: [teamPlayers.playerId],
+    references: [players.id],
   }),
 }));
+
+// PlayerMatchPerformance relations
+export const playerMatchPerformanceRelations = relations(
+  playerMatchPerformance,
+  ({ one }) => ({
+    match: one(matches, {
+      fields: [playerMatchPerformance.matchId],
+      references: [matches.id],
+    }),
+    player: one(players, {
+      fields: [playerMatchPerformance.playerId],
+      references: [players.id],
+    }),
+    team: one(teams, {
+      fields: [playerMatchPerformance.teamId],
+      references: [teams.id],
+    }),
+    dismissedBy: one(players, {
+      fields: [playerMatchPerformance.dismissedBy],
+      references: [players.id],
+    }),
+  })
+);
+
+// PlayerTournamentStats relations
+export const playerTournamentStatsRelations = relations(
+  playerTournamentStats,
+  ({ one }) => ({
+    player: one(players, {
+      fields: [playerTournamentStats.playerId],
+      references: [players.id],
+    }),
+    tournament: one(tournaments, {
+      fields: [playerTournamentStats.tournamentId],
+      references: [tournaments.id],
+    }),
+    team: one(teams, {
+      fields: [playerTournamentStats.teamId],
+      references: [teams.id],
+    }),
+  })
+);
+
+// PlayerCareerStats relations
+export const playerCareerStatsRelations = relations(
+  playerCareerStats,
+  ({ one }) => ({
+    player: one(players, {
+      fields: [playerCareerStats.playerId],
+      references: [players.id],
+    }),
+  })
+);

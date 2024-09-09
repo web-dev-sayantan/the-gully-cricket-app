@@ -10,37 +10,34 @@ export async function getMatchById(id: number) {
   const match = await db.query.matches.findFirst({
     where: eq(matches.id, id),
     with: {
-      team_battingFirstTeamId: {
+      team1: {
         with: {
-          player_player1: true,
-          player_player2: true,
-          player_player3: true,
-          player_player4: true,
-          player_player5: true,
-          player_player6: true,
-          player_player7: true,
-          player_player8: true,
-          player_player9: true,
-          player_player10: true,
-          player_player11: true,
+          teamPlayers: {
+            with: {
+              player: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
         },
       },
-      team_battingSecondTeamId: {
+      team2: {
         with: {
-          player_player1: true,
-          player_player2: true,
-          player_player3: true,
-          player_player4: true,
-          player_player5: true,
-          player_player6: true,
-          player_player7: true,
-          player_player8: true,
-          player_player9: true,
-          player_player10: true,
-          player_player11: true,
+          teamPlayers: {
+            with: {
+              player: {
+                columns: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
         },
       },
-      team_tossWinnerId: true,
     },
   });
   return match;
@@ -49,9 +46,9 @@ export async function getMatchById(id: number) {
 export async function getAllMatches() {
   const matches = await db.query.matches.findMany({
     with: {
-      team_battingFirstTeamId: true,
-      team_battingSecondTeamId: true,
-      team_tossWinnerId: true,
+      team1: true,
+      team2: true,
+      tossWinner: true,
     },
   });
   return matches;

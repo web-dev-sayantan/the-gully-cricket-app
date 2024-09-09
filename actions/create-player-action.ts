@@ -1,6 +1,6 @@
 "use server";
 import { db } from "@/db";
-import { playersTable } from "@/db/schema";
+import { players } from "@/db/schema";
 export async function createPlayerAction({
   name,
   age,
@@ -14,12 +14,12 @@ export async function createPlayerAction({
   bowlingStance: string;
   isWicketKeeper?: boolean;
 }) {
-  const result = await db.insert(playersTable).values({
+  const result = await db.insert(players).values({
     name,
     age,
-    batting_stance: battingStance,
-    bowling_stance: bowlingStance,
-    is_wicket_keeper: !!isWicketKeeper,
+    battingStance,
+    bowlingStance,
+    isWicketKeeper: !!isWicketKeeper,
   });
   if (result) {
     return result;

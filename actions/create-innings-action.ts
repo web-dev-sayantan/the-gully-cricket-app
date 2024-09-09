@@ -1,62 +1,56 @@
 import { db } from "@/db";
-import { scoreCard } from "@/db/schema";
+import { innings } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function createScorecardAction({
+export async function createInningsAction({
   matchId,
-  teamId,
+  battingTeamId,
   wickets = 0,
   balls = 0,
   extras = 0,
-  target = 0,
   totalScore = 0,
 }: {
   matchId: number;
-  teamId: number;
+  battingTeamId: number;
   wickets: number;
   balls: number;
   extras: number;
-  target: number;
   totalScore: number;
 }) {
-  const newScorecard = await db.insert(scoreCard).values({
+  const newInnings = await db.insert(innings).values({
     matchId,
-    teamId,
+    battingTeamId,
     wickets,
     balls,
     extras,
-    target,
     totalScore,
   });
-  return newScorecard.lastInsertRowid;
+  return newInnings.lastInsertRowid;
 }
 
-export async function updateScorecardAction({
+export async function updateInningsAction({
   id,
   wickets = 0,
   balls = 0,
   extras = 0,
-  target = 0,
   totalScore = 0,
 }: {
   id: number;
   wickets: number;
   balls: number;
   extras: number;
-  target: number;
   totalScore: number;
 }) {
-  const newScorecard = await db
-    .update(scoreCard)
+  const newInnings = await db
+    .update(innings)
     .set({
       id,
       wickets,
       balls,
       extras,
-      target,
       totalScore,
     })
-    .where(eq(scoreCard.id, id))
+    .where(eq(innings.id, id))
     .returning();
-  return newScorecard[0];
+  return newInnings[0];
 }

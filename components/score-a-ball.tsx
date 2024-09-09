@@ -1,66 +1,73 @@
 "use client";
 
+import { MinusIcon, PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
+import { cn, getFirstName } from "@/lib/utils";
 import { BallWithPlayers } from "@/data/balls";
-import { ScoreCard } from "@/db/schema";
-import { cn } from "@/lib/utils";
-import { Dismissed, Extras, ExtrasType, WicketType } from "@/types";
-import { MinusIcon, PlusIcon } from "lucide-react";
+import { Dismissed, TeamPlayerType, WicketType } from "@/types";
 import { useMemo, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Innings, NewBall } from "@/db/types";
 
 function ScoreABall({
   ball,
   otherBalls,
-  scorecard,
+  innings,
   bowlingTeamId,
+  bowlingTeamPlayers,
   onSaveBallData,
 }: {
   ball: BallWithPlayers;
   otherBalls: BallWithPlayers[];
-  scorecard: ScoreCard;
+  innings: Innings;
+  bowlingTeamPlayers: TeamPlayerType[];
   bowlingTeamId: number;
   onSaveBallData: (
     {
-      ballId,
+      id,
       strikerId,
       nonStrikerId,
       bowlerId,
       ballNumber,
       runsScored,
-      isExtra,
-      extraType,
-      wicket,
+      isBye,
+      isLegBye,
+      isWide,
+      isNoBall,
+      isWicket,
       wicketType,
-    }: {
-      ballId: number;
-      strikerId: number;
-      nonStrikerId: number;
-      bowlerId: number;
-      ballNumber: number;
-      runsScored: number;
-      isExtra: boolean;
-      extraType?: ExtrasType;
-      wicket: boolean;
-      wicketType?: WicketType;
-    },
+      assistPlayerId,
+      dismissedPlayerId,
+    }: NewBall,
     {
-      scorecardId,
+      inningsId,
       wickets,
       balls,
       extras,
-      target,
       totalScore,
-      teamId,
     }: {
-      scorecardId: number;
+      inningsId: number;
       wickets: number;
       balls: number;
       extras: number;
-      target: number;
       totalScore: number;
-      teamId: number;
     },
     {
       matchId,
@@ -73,75 +80,133 @@ function ScoreABall({
 }) {
   const [run, setRun] = useState(ball.runsScored);
   const [dismissed, setDismissed] = useState<Dismissed>();
-  const [extra, setExtra] = useState<Extras | null>(
-    ball.isExtra ? { value: true, type: ball.extraType as ExtrasType } : null
+  const [wide, setWide] = useState(ball.isWide);
+  const [noBall, setNoBall] = useState(ball.isNoBall);
+  const [batsman, setBatsman] = useState(ball.striker);
+  const [dismissedBy, setDismissedBy] = useState<number | undefined | null>(
+    null
   );
-  const [batsman, setBatsman] = useState(ball.player_strikerId);
-  const ballScore = useMemo(() => run + (extra?.value ? 1 : 0), [run, extra]);
+  const [batterDismissed, setBatterDismissed] = useState<
+    number | undefined | null
+  >(null);
+  const ballScore = useMemo(
+    () => run + (wide || noBall ? 1 : 0),
+    [run, wide, noBall]
+  );
+  const dismissedbyLabel = useMemo(
+    () =>
+      dismissed
+        ? getFirstName(
+            bowlingTeamPlayers.find(({ player }) => player.id === dismissedBy)
+              ?.player.name
+          )
+        : undefined,
+    [bowlingTeamPlayers, dismissed, dismissedBy]
+  );
+  const wicketLabel: Record<string, string> = {
+    "run out": "R.O",
+    caught: "W",
+    stumped: "W",
+    bold: "W",
+    "boundary out": "W",
+  };
   function handleWide() {
-    if (extra?.type === "wide") {
-      setExtra(null);
-    } else {
-      setExtra({ value: true, type: "wide" });
-    }
+    setWide(!wide);
   }
   function handleNo() {
-    if (extra?.type === "no") {
-      setExtra(null);
+    setNoBall(!noBall);
+  }
+
+  function handleBoldOut() {
+    if (dismissed?.type === "bold") {
+      setDismissed(undefined);
+      setDismissedBy(undefined);
+      setBatterDismissed(undefined);
     } else {
-      setExtra({ value: true, type: "no" });
-      if (dismissed?.value && dismissed.type !== "run out")
-        setDismissed(undefined);
+      setDismissed({ value: true, type: "bold" });
+      setDismissedBy(undefined);
+      setBatterDismissed(ball.strikerId);
+      setRun(0);
+      if (wide) {
+        setWide(false);
+      }
+      if (noBall) {
+        setNoBall(false);
+      }
     }
   }
 
-  function handleRegDismissal(type: "bold" | "caught") {
-    if (dismissed?.type === type) {
+  function handleBoundaryOut() {
+    if (dismissed?.value && dismissed.type === "boundary out") {
       setDismissed(undefined);
+      setDismissedBy(undefined);
+      setBatterDismissed(undefined);
     } else {
-      setDismissed({ value: true, type });
+      setDismissed({ value: true, type: "boundary out" });
+      setBatterDismissed(ball.strikerId);
       setRun(0);
-      if (extra?.value) setExtra(null);
+      if (wide) {
+        setWide(false);
+      }
+      if (noBall) {
+        setNoBall(false);
+      }
     }
   }
-  function handleStumped() {
-    if (dismissed?.type === "stumped") {
+
+  function handleOtherDismissals() {
+    if (dismissed?.value) {
       setDismissed(undefined);
-    } else {
-      setDismissed({ value: true, type: "stumped" });
+      setDismissedBy(undefined);
+      setBatterDismissed(undefined);
+    }
+  }
+  function saveDismissal(type: WicketType) {
+    setDismissed({
+      value: true,
+      type,
+    });
+    if (type !== "run out") {
+      setBatterDismissed(ball.strikerId);
       setRun(0);
-      if (extra?.value && extra?.type !== "no") setExtra(null);
+      if (type !== "stumped") {
+        if (wide) {
+          setWide(false);
+        }
+      }
+      if (noBall) {
+        setNoBall(false);
+      }
     }
   }
 
   function handleNext() {
     onSaveBallData(
       {
-        ballId: ball.id,
+        id: ball.id,
+        inningsId: innings.id,
         strikerId: batsman.id,
         nonStrikerId:
-          batsman.id === ball.player_strikerId.id
-            ? ball.player_nonStrikerId.id
-            : batsman.id,
+          batsman.id === ball.striker.id ? ball.nonStriker.id : batsman.id,
         runsScored: run,
-        isExtra: extra && extra.value ? extra.value : false,
-        extraType: extra && extra.value ? extra.type : undefined,
-        wicket: dismissed ? dismissed.value : false,
+        isWide: wide,
+        isNoBall: noBall,
+        isWicket: dismissed ? dismissed.value : false,
         wicketType: dismissed && dismissed.value ? dismissed.type : undefined,
+        assistPlayerId: dismissedBy ? dismissedBy : undefined,
+        dismissedPlayerId: batterDismissed ? batterDismissed : undefined,
         ballNumber: ball.ballNumber,
         bowlerId: ball.bowlerId,
       },
       {
-        scorecardId: scorecard.id,
-        balls: scorecard.balls,
-        wickets: scorecard.wickets,
-        extras: scorecard.extras,
-        target: scorecard.target,
-        totalScore: scorecard.totalScore,
-        teamId: scorecard.teamId,
+        inningsId: innings.id,
+        balls: innings.balls,
+        wickets: innings.wickets,
+        extras: innings.extras,
+        totalScore: innings.totalScore,
       },
       {
-        matchId: scorecard.matchId,
+        matchId: innings.matchId,
         bowlingTeamId,
       }
     );
@@ -153,41 +218,42 @@ function ScoreABall({
         <div className="flex flex-1">
           <Button
             className="w-full"
-            onClick={() => setBatsman(ball.player_strikerId)}
-            variant={
-              batsman.id === ball.player_strikerId.id ? "default" : "secondary"
-            }
+            onClick={() => setBatsman(ball.striker)}
+            variant={batsman.id === ball.striker.id ? "gradient" : "secondary"}
           >
-            <span className="overflow-ellipsis">
-              {ball.player_strikerId.name}
-            </span>
+            <span className="overflow-ellipsis">{ball.striker.name}</span>
           </Button>
         </div>
         <div className="flex flex-1">
           <Button
             className="w-full"
-            onClick={() => setBatsman(ball.player_nonStrikerId)}
-            variant={
-              batsman.id === ball.player_nonStrikerId.id
-                ? "default"
-                : "secondary"
-            }
+            onClick={() => setBatsman(ball.nonStriker)}
+            variant={batsman.id === ball.nonStrikerId ? "default" : "secondary"}
           >
-            {ball.player_nonStrikerId.name}
+            {ball.nonStriker.name}
           </Button>
         </div>
       </div>
       <div className="flex-y-center gap-2">
-        <h1 className="font-bold">{ball.player_bowlerId.name} : </h1>
+        <h1 className="font-bold">{ball.bowler.name} : </h1>
         <div className="flex-y-center gap-2">
           {otherBalls.map((b) => (
             <div
               key={b.id}
-              className={cn("flex-center px-2 py-1 rounded-lg bg-secondary", {
-                "animate-pulse": b.id === ball.id,
-              })}
+              className={cn(
+                "flex-center items-baseline px-2 py-1 rounded-lg bg-secondary",
+                {
+                  "animate-pulse": b.id === ball.id,
+                }
+              )}
             >
-              {b.runsScored}
+              {b.isWicket && b.wicketType
+                ? wicketLabel[b.wicketType]
+                : b.runsScored}
+              <span className="text-muted-foreground text-sm">
+                {b.isWide ? "wd" : ""}
+                {b.isNoBall ? "nb" : ""}
+              </span>
             </div>
           ))}
         </div>
@@ -265,11 +331,7 @@ function ScoreABall({
             size={"lg"}
             className="flex-1"
             onClick={handleWide}
-            variant={
-              extra && extra.value === true && extra.type === "wide"
-                ? "default"
-                : "secondary"
-            }
+            variant={wide ? "default" : "secondary"}
           >
             Wide
           </Button>
@@ -277,11 +339,7 @@ function ScoreABall({
             size={"lg"}
             className="flex-1"
             onClick={handleNo}
-            variant={
-              extra && extra.value === true && extra.type === "no"
-                ? "default"
-                : "secondary"
-            }
+            variant={noBall ? "default" : "secondary"}
           >
             No Ball
           </Button>
@@ -289,7 +347,15 @@ function ScoreABall({
       </div>
       <Separator className="my-2" />
       <div className="flex flex-col gap-4">
-        <h1 className="text-lg font-bold ">Dismissed: </h1>
+        <h1 className="text-lg font-bold flex items-baseline justify-between">
+          Dismissed:
+          <span className="text-muted-foreground font-normal text-sm capitalize">
+            {dismissedbyLabel && dismissed?.value
+              ? `${dismissed.type} by `
+              : ""}{" "}
+            {dismissedbyLabel}
+          </span>
+        </h1>
         <div className="flex gap-4 items-center justify-center w-full">
           <Button
             size={"lg"}
@@ -299,42 +365,130 @@ function ScoreABall({
                 ? "destructive"
                 : "secondary"
             }
-            onClick={handleRegDismissal.bind(null, "bold")}
+            onClick={handleBoldOut}
           >
             Bold
           </Button>
-          <Button
-            size={"lg"}
-            className="flex-1"
-            variant={
-              dismissed && dismissed.type === "caught"
-                ? "destructive"
-                : "secondary"
-            }
-            onClick={handleRegDismissal.bind(null, "caught")}
-          >
-            Caught
-          </Button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                size={"lg"}
+                className="flex-1"
+                variant={
+                  dismissed && dismissed.type === "caught"
+                    ? "destructive"
+                    : "secondary"
+                }
+                onClick={handleOtherDismissals}
+              >
+                Caught
+              </Button>
+            </SheetTrigger>
+            <SheetContent side={"bottom"}>
+              <SheetHeader>
+                <h1 className="font-bold">Caught By</h1>
+              </SheetHeader>
+              <div className="flex flex-col py-4">
+                <Select
+                  onValueChange={(value) => {
+                    setDismissedBy(+value);
+                  }}
+                  value={dismissedBy?.toString() || ""}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Catcher" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bowlingTeamPlayers.map(({ player }) => (
+                      <SelectItem key={player.id} value={`${player.id}`}>
+                        {player.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <SheetFooter>
+                <SheetClose asChild>
+                  <Button onClick={saveDismissal.bind(null, "caught")}>
+                    Save
+                  </Button>
+                </SheetClose>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
         </div>
         <div className="flex gap-4 items-center justify-center w-full">
-          <Button
-            className="flex-1"
-            variant={
-              dismissed && dismissed.type === "run out"
-                ? "destructive"
-                : "secondary"
-            }
-            onClick={() => {
-              dismissed && dismissed.type === "run out"
-                ? setDismissed(undefined)
-                : setDismissed({
-                    value: true,
-                    type: "run out",
-                  });
-            }}
-          >
-            Run Out
-          </Button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                className="flex-1"
+                variant={
+                  dismissed && dismissed.type === "run out"
+                    ? "destructive"
+                    : "secondary"
+                }
+                onClick={handleOtherDismissals}
+              >
+                Run Out
+              </Button>
+            </SheetTrigger>
+            <SheetContent side={"bottom"}>
+              <SheetHeader>
+                <h1 className="font-bold">Run Out Details</h1>
+              </SheetHeader>
+              <div className="flex flex-col gap-8 py-4">
+                <Select
+                  onValueChange={(value) => {
+                    setBatterDismissed(+value);
+                  }}
+                  defaultValue={ball.strikerId.toString()}
+                  value={batterDismissed?.toString() || ""}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Who got out" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem
+                      key={ball.strikerId}
+                      value={`${ball.strikerId}`}
+                    >
+                      {ball.striker.name}
+                    </SelectItem>
+                    <SelectItem
+                      key={ball.nonStrikerId}
+                      value={`${ball.nonStrikerId}`}
+                    >
+                      {ball.nonStriker.name}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select
+                  onValueChange={(value) => {
+                    setDismissedBy(+value);
+                  }}
+                  value={dismissedBy?.toString() || ""}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Fielder" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bowlingTeamPlayers.map(({ player }) => (
+                      <SelectItem key={player.id} value={`${player.id}`}>
+                        {player.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <SheetFooter>
+                <SheetClose asChild>
+                  <Button onClick={saveDismissal.bind(null, "run out")}>
+                    Save
+                  </Button>
+                </SheetClose>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
           <Button
             className="flex-1"
             variant={
@@ -342,35 +496,63 @@ function ScoreABall({
                 ? "destructive"
                 : "secondary"
             }
-            onClick={() => {
-              dismissed && dismissed.type === "boundary out"
-                ? setDismissed(undefined)
-                : setDismissed({
-                    value: true,
-                    type: "boundary out",
-                  });
-            }}
+            onClick={handleBoundaryOut}
           >
             Boundary Out
           </Button>
-          <Button
-            className="flex-1"
-            variant={
-              dismissed && dismissed.type === "stumped"
-                ? "destructive"
-                : "secondary"
-            }
-            onClick={handleStumped}
-          >
-            Stumped
-          </Button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                className="flex-1"
+                variant={
+                  dismissed && dismissed.type === "stumped"
+                    ? "destructive"
+                    : "secondary"
+                }
+                onClick={handleOtherDismissals}
+              >
+                Stumped
+              </Button>
+            </SheetTrigger>
+            <SheetContent side={"bottom"}>
+              <SheetHeader>
+                <h1 className="font-bold">Stumped By</h1>
+              </SheetHeader>
+              <div className="flex flex-col py-4">
+                <Select
+                  onValueChange={(value) => {
+                    setDismissedBy(+value);
+                  }}
+                  value={dismissedBy?.toString() || ""}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Player" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {bowlingTeamPlayers.map(({ player }) => (
+                      <SelectItem key={player.id} value={`${player.id}`}>
+                        {player.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <SheetFooter>
+                <SheetClose asChild>
+                  <Button onClick={saveDismissal.bind(null, "stumped")}>
+                    Save
+                  </Button>
+                </SheetClose>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
       <Separator className="my-1" />
       <div className="flex gap-4">
         <Button variant={"destructive"}>Clear</Button>
         <Button className="flex-1" onClick={handleNext}>
-          Next
+          Next Ball
         </Button>
       </div>
     </section>

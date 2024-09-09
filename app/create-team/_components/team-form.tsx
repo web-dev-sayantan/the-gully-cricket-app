@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Player } from "@/db/schema";
+import { Player } from "@/db/types";
 import { teamFormSchema } from "@/schema/team-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef } from "react";

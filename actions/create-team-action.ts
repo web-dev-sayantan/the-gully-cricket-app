@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { teamsTable } from "@/db/schema";
+import { teamPlayers, teams } from "@/db/schema";
 
 export async function createTeamAction({
   name,
@@ -10,19 +10,35 @@ export async function createTeamAction({
   shortName: string;
   captain: number;
 }) {
-  const result = await db.insert(teamsTable).values({
-    name,
-    short_name: shortName,
-    captain,
-    player_1: captain,
-    player_2: captain + 1,
-    player_3: captain + 2,
-    player_4: captain + 3,
-    player_5: captain + 4,
-    player_6: captain + 5,
-    player_7: captain + 6,
-    player_8: captain + 7,
-  });
+  const result = await db
+    .insert(teams)
+    .values({
+      name,
+      shortName,
+    })
+    .returning();
+  if (result) {
+    await db
+      .insert(teamPlayers)
+      .values({ teamId: result[0].id, playerId: captain, isCaptain: true });
+    return result[0].id;
+  } else {
+    return null;
+  }
+}
+
+export async function createTeamPlayerAction({
+  teamId,
+  playerId,
+  isCaptain,
+}: {
+  teamId: number;
+  playerId: number;
+  isCaptain: boolean;
+}) {
+  const result = await db
+    .insert(teamPlayers)
+    .values({ teamId, playerId, isCaptain });
   if (result) {
     return result;
   } else {
