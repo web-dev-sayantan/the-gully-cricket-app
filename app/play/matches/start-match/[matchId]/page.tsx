@@ -3,6 +3,7 @@ import PlayerSelector from "@/components/players-selector";
 import { getMatchById } from "@/data/matches";
 import { Separator } from "@radix-ui/react-separator";
 
+export const runtime = "edge";
 export default async function StartMatchPage({
   params: { matchId },
 }: {

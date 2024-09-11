@@ -3,6 +3,8 @@ import NewBatter from "@/components/new-batter";
 import { getBallById } from "@/data/balls";
 import { getMatchById } from "@/data/matches";
 import { redirect } from "next/navigation";
+
+export const runtime = "edge";
 export default async function NewBatterPage({
   params: { matchId, innings: inningsId, ball: ballId },
 }: {

@@ -3,6 +3,8 @@ import NewBowler from "@/components/new-bowler";
 import { getBallById } from "@/data/balls";
 import { getMatchById } from "@/data/matches";
 import { redirect } from "next/navigation";
+
+export const runtime = "edge";
 export default async function NewBowlerPage({
   params: { matchId, innings: inningsId, ball: ballId },
 }: {

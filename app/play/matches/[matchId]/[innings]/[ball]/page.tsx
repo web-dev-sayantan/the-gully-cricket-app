@@ -8,7 +8,8 @@ import { revalidateGivenPath, saveBallData } from "@/actions/match-actions";
 import { SwordsIcon } from "lucide-react";
 import { getInningsById } from "@/data/innings";
 
-export default async function MatchPage({
+export const runtime = "edge";
+export default async function BallPage({
   params: { matchId, innings: inningsId, ball: ballId },
 }: {
   params: { matchId: string; innings: string; ball: string };
