@@ -8,9 +8,13 @@ import {
   createInningsAction,
   updateInningsAction,
 } from "@/actions/create-innings-action";
+import {
+  createPlayerPerformanceAction,
+  updatePlayerPerformanceAction,
+} from "@/actions/player-performance-action";
 import { getMatchById } from "@/data/matches";
+import { getPlayerMatchPerformance } from "@/data/players";
 import { NewBall } from "@/db/types";
-import { ExtrasType, WicketType } from "@/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -50,10 +54,8 @@ export async function saveBallData(
   },
   {
     matchId,
-    bowlingTeamId,
   }: {
     matchId: number;
-    bowlingTeamId: number;
   }
 ) {
   "use server";
@@ -80,7 +82,7 @@ export async function saveBallData(
     isNoBall,
   });
 
-  // Update the scorecard
+  // Update the innings table
   const isExtra = isWide || isNoBall;
   const inningsData = await updateInningsAction({
     id: inningsId,
@@ -90,18 +92,100 @@ export async function saveBallData(
     totalScore: totalScore + (runsScored || 0) + (isExtra ? 1 : 0),
   });
 
+  let updatePerformancePromises: Promise<any>[] = [];
+
+  // update player's individual stats
+  const playerPerformance = await getPlayerMatchPerformance(strikerId, matchId);
+  if (playerPerformance.length > 0) {
+    const batterCurrentScore =
+      playerPerformance[0].runsScored + (runsScored || 0);
+    const batterBallsFaced =
+      playerPerformance[0].ballsFaced + (isExtra ? 0 : 1);
+    const isDismissed =
+      isWicket && dismissedPlayerId === playerPerformance[0].id;
+    updatePerformancePromises.push(
+      updatePlayerPerformanceAction({
+        ...playerPerformance[0],
+        ballsFaced: batterBallsFaced,
+        runsScored: batterCurrentScore,
+        dotBalls:
+          playerPerformance[0].dotBalls +
+          (isExtra ? 0 : runsScored === 0 ? 1 : 0),
+        fours: playerPerformance[0].fours + (runsScored === 4 ? 1 : 0),
+        sixes: playerPerformance[0].sixes + (runsScored === 6 ? 1 : 0),
+        isDismissed,
+        dismissedBy: isDismissed && wicketType !== "run out" ? bowlerId : null,
+      })
+    );
+  }
+  // update non-striker run out
+  if (nonStrikerId && isWicket && wicketType === "run out") {
+    const playerPerformance = await getPlayerMatchPerformance(
+      nonStrikerId,
+      matchId
+    );
+    if (playerPerformance.length > 0) {
+      updatePerformancePromises.push(
+        updatePlayerPerformanceAction({
+          ...playerPerformance[0],
+          isDismissed: true,
+        })
+      );
+    }
+  }
+  // update bowler's individual stats
+  const bowlerPerformance = await getPlayerMatchPerformance(bowlerId, matchId);
+  if (bowlerPerformance.length > 0) {
+    updatePerformancePromises.push(
+      updatePlayerPerformanceAction({
+        ...bowlerPerformance[0],
+        ballsBowled: bowlerPerformance[0].ballsBowled + (isExtra ? 0 : 1),
+        runsConceded:
+          bowlerPerformance[0].runsConceded +
+          (runsScored || 0) +
+          (isExtra ? 1 : 0),
+        wicketsTaken:
+          bowlerPerformance[0].wicketsTaken +
+          (isWicket && wicketType !== "run out" ? 1 : 0),
+      })
+    );
+  }
+  // update fielder's stats on dismissal
+  if (isWicket && assistPlayerId) {
+    const fielderPerformance = await getPlayerMatchPerformance(
+      assistPlayerId,
+      matchId
+    );
+    if (fielderPerformance.length > 0) {
+      updatePerformancePromises.push(
+        updatePlayerPerformanceAction({
+          ...fielderPerformance[0],
+          catches:
+            fielderPerformance[0].catches + (wicketType === "caught" ? 1 : 0),
+          stumpings:
+            fielderPerformance[0].stumpings +
+            (wicketType === "stumped" ? 1 : 0),
+          runOuts:
+            fielderPerformance[0].runOuts + (wicketType === "run out" ? 1 : 0),
+        })
+      );
+    }
+  }
+
+  await Promise.all(updatePerformancePromises);
+
   let path = `/play/matches/${matchId}/${inningsId}/${id}/new-batter`;
   if (isWicket) {
-    // open new batter selection page
+    // open new batter selection page when wicket falls
     revalidatePath(path);
     redirect(path);
   } else if (!isExtra && ballNumber % 6 === 0) {
-    // open new bowler selection page
+    // open new bowler selection page when over ends
     path = `/play/matches/${matchId}/${inningsId}/${id}/new-bowler`;
     revalidatePath(path);
     redirect(path);
   } else {
-    // Create a new ball
+    // Create the next ball
     const newBallId = await createNewBallAction({
       inningsId,
       ballNumber: isExtra ? ballNumber : ballNumber + 1,
@@ -159,12 +243,32 @@ export async function onSelectCurrentBattersAndBowler({
     nonStrikerId,
     bowlerId,
   });
+
+  // create player's performance table entries
+  await Promise.all([
+    createPlayerPerformanceAction({
+      playerId: strikerId,
+      matchId,
+      teamId: match.team1Id,
+    }),
+    createPlayerPerformanceAction({
+      playerId: nonStrikerId,
+      matchId,
+      teamId: match.team1Id,
+    }),
+    createPlayerPerformanceAction({
+      playerId: bowlerId,
+      matchId,
+      teamId: match.team2Id,
+    }),
+  ]);
   revalidatePath(`/play/matches/${matchId}`);
   redirect(`/play/matches/${matchId}/${inningsId}/${ballId}`);
 }
 
 export async function onSelectNewBatter({
   matchId,
+  teamId,
   inningsId,
   isExtra,
   ballNumber,
@@ -173,6 +277,7 @@ export async function onSelectNewBatter({
   bowlerId,
 }: {
   matchId: number;
+  teamId: number;
   inningsId: number;
   ballNumber: number;
   isExtra: boolean;
@@ -190,6 +295,20 @@ export async function onSelectNewBatter({
     nonStrikerId,
     bowlerId,
   });
+  try {
+    await createPlayerPerformanceAction({
+      playerId: strikerId,
+      matchId,
+      teamId,
+    });
+    await createPlayerPerformanceAction({
+      playerId: nonStrikerId,
+      matchId,
+      teamId,
+    });
+  } catch (error) {
+    // DO NOTHING
+  }
   if (isExtra || ballNumber % 6 !== 0) {
     revalidatePath(`/play/matches/${matchId}/${inningsId}/${ballId}`);
     redirect(`/play/matches/${matchId}/${inningsId}/${ballId}`);
@@ -200,6 +319,7 @@ export async function onSelectNewBatter({
 
 export async function onSelectNewBowler({
   matchId,
+  teamId,
   inningsId,
   ballNumber,
   runScored,
@@ -208,6 +328,7 @@ export async function onSelectNewBowler({
   bowlerId,
 }: {
   matchId: number;
+  teamId: number;
   inningsId: number;
   ballNumber: number;
   runScored: number;
@@ -225,6 +346,23 @@ export async function onSelectNewBowler({
     nonStrikerId: runScored % 2 === 1 ? nonStrikerId : strikerId,
     bowlerId,
   });
+
+  // create player's performance table entries
+  try {
+    const bowlerPerformance = await getPlayerMatchPerformance(
+      bowlerId,
+      matchId
+    );
+    if (!bowlerPerformance) {
+      createPlayerPerformanceAction({
+        playerId: bowlerId,
+        matchId,
+        teamId,
+      });
+    }
+  } catch (error) {
+    // DO NOTHING
+  }
   revalidatePath(`/play/matches/${matchId}/${inningsId}/${ballId}`);
   redirect(`/play/matches/${matchId}/${inningsId}/${ballId}`);
 }

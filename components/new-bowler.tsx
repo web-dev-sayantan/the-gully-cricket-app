@@ -15,7 +15,7 @@ export default function NewBowler({
   matchId,
   inningsId,
   ballNumber,
-  previousBowlerId,
+  teamId,
   nonStrikerId,
   strikerId,
   runScored,
@@ -33,13 +33,14 @@ export default function NewBowler({
   }[];
   matchId: number;
   inningsId: number;
-  previousBowlerId: number;
+  teamId: number;
   ballNumber: number;
   runScored: number;
   nonStrikerId: number;
   strikerId: number;
   onSelectNewBowler: ({
     matchId,
+    teamId,
     inningsId,
     ballNumber,
     runScored,
@@ -48,6 +49,7 @@ export default function NewBowler({
     bowlerId,
   }: {
     matchId: number;
+    teamId: number;
     inningsId: number;
     ballNumber: number;
     runScored: number;
@@ -85,6 +87,7 @@ export default function NewBowler({
           bowlerId &&
           onSelectNewBowler({
             matchId,
+            teamId,
             inningsId,
             ballNumber,
             runScored,

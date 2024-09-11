@@ -27,6 +27,7 @@ export default async function NewBatterPage({
         <NewBatter
           battingTeam={battingTeamPlayers}
           matchId={+matchId}
+          teamId={match.team1Id}
           inningsId={+inningsId}
           ballNumber={ball.ballNumber}
           isExtra={ball.isWide || ball.isNoBall}

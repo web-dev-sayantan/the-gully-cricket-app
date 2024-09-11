@@ -13,6 +13,7 @@ import { useState } from "react";
 export default function NewBatter({
   battingTeam,
   matchId,
+  teamId,
   inningsId,
   ballNumber,
   nonStrikerId,
@@ -31,6 +32,7 @@ export default function NewBatter({
     };
   }[];
   matchId: number;
+  teamId: number;
   inningsId: number;
   ballNumber: number;
   nonStrikerId: number;
@@ -38,6 +40,7 @@ export default function NewBatter({
   isExtra: boolean;
   onSelectNewBatter: ({
     matchId,
+    teamId,
     inningsId,
     isExtra,
     ballNumber,
@@ -46,6 +49,7 @@ export default function NewBatter({
     bowlerId,
   }: {
     matchId: number;
+    teamId: number;
     inningsId: number;
     ballNumber: number;
     isExtra: boolean;
@@ -83,6 +87,7 @@ export default function NewBatter({
           strikerId &&
           onSelectNewBatter({
             matchId,
+            teamId,
             inningsId,
             ballNumber,
             nonStrikerId,

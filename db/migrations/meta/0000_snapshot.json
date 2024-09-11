@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "a2db1f12-22fb-42cf-94dc-cf9adb7f18e7",
+  "id": "d49f4ba5-ca93-40b5-9b12-f240d67268a9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "balls": {
@@ -736,14 +736,6 @@
           "autoincrement": false,
           "default": 0
         },
-        "strike_rate": {
-          "name": "strike_rate",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
         "is_dismissed": {
           "name": "is_dismissed",
           "type": "integer",
@@ -790,24 +782,8 @@
           "autoincrement": false,
           "default": 0
         },
-        "economy": {
-          "name": "economy",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
         "dot_balls": {
           "name": "dot_balls",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "boundaries_conceded": {
-          "name": "boundaries_conceded",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -839,7 +815,23 @@
           "default": 0
         }
       },
-      "indexes": {},
+      "indexes": {
+        "player_idx": {
+          "name": "player_idx",
+          "columns": [
+            "player_id"
+          ],
+          "isUnique": false
+        },
+        "player_match_performance_idx": {
+          "name": "player_match_performance_idx",
+          "columns": [
+            "player_id",
+            "match_id"
+          ],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {
         "player_match_performance_match_id_matches_id_fk": {
           "name": "player_match_performance_match_id_matches_id_fk",

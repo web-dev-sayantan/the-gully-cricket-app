@@ -1,7 +1,6 @@
 import { db } from "@/db";
 import { balls } from "@/db/schema";
 import { NewBall } from "@/db/types";
-import { WicketType } from "@/types";
 import { eq } from "drizzle-orm";
 
 export async function createNewBallAction({

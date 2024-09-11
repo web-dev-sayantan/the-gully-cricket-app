@@ -71,10 +71,8 @@ function ScoreABall({
     },
     {
       matchId,
-      bowlingTeamId,
     }: {
       matchId: number;
-      bowlingTeamId: number;
     }
   ) => Promise<void>;
 }) {
@@ -207,7 +205,6 @@ function ScoreABall({
       },
       {
         matchId: innings.matchId,
-        bowlingTeamId,
       }
     );
   }

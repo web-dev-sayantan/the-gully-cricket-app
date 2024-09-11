@@ -88,16 +88,13 @@ CREATE TABLE `player_match_performance` (
 	`balls_faced` integer DEFAULT 0 NOT NULL,
 	`fours` integer DEFAULT 0 NOT NULL,
 	`sixes` integer DEFAULT 0 NOT NULL,
-	`strike_rate` real DEFAULT 0 NOT NULL,
 	`is_dismissed` integer DEFAULT false NOT NULL,
 	`dismissal_type` text,
 	`dismissed_by` integer,
 	`balls_bowled` integer DEFAULT 0 NOT NULL,
 	`runs_conceded` integer DEFAULT 0 NOT NULL,
 	`wickets_taken` integer DEFAULT 0 NOT NULL,
-	`economy` real DEFAULT 0 NOT NULL,
 	`dot_balls` integer DEFAULT 0 NOT NULL,
-	`boundaries_conceded` integer DEFAULT 0 NOT NULL,
 	`catches` integer DEFAULT 0 NOT NULL,
 	`run_outs` integer DEFAULT 0 NOT NULL,
 	`stumpings` integer DEFAULT 0 NOT NULL,
@@ -185,4 +182,6 @@ CREATE INDEX `over_idx` ON `balls` (`innings_id`,`bowler_id`);--> statement-brea
 CREATE INDEX `innings_idx` ON `balls` (`innings_id`);--> statement-breakpoint
 CREATE INDEX `match_idx` ON `innings` (`match_id`);--> statement-breakpoint
 CREATE INDEX `rank_idx` ON `matches` (`winner_id`);--> statement-breakpoint
+CREATE INDEX `player_idx` ON `player_match_performance` (`player_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `player_match_performance_idx` ON `player_match_performance` (`player_id`,`match_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `unique_team_player` ON `team_players` (`team_id`,`player_id`);

@@ -158,37 +158,43 @@ export const balls = sqliteTable(
   })
 );
 
-export const playerMatchPerformance = sqliteTable("player_match_performance", {
-  id: integer("id").primaryKey().notNull(),
-  matchId: integer("match_id")
-    .notNull()
-    .references(() => matches.id),
-  playerId: integer("player_id")
-    .notNull()
-    .references(() => players.id),
-  teamId: integer("team_id")
-    .notNull()
-    .references(() => teams.id),
-  runsScored: integer("runs_scored").notNull().default(0),
-  ballsFaced: integer("balls_faced").notNull().default(0),
-  fours: integer("fours").notNull().default(0),
-  sixes: integer("sixes").notNull().default(0),
-  strikeRate: real("strike_rate").notNull().default(0),
-  isDismissed: integer("is_dismissed", { mode: "boolean" })
-    .notNull()
-    .default(false),
-  dismissalType: text("dismissal_type"),
-  dismissedBy: integer("dismissed_by").references(() => players.id),
-  ballsBowled: integer("balls_bowled").notNull().default(0),
-  runsConceded: integer("runs_conceded").notNull().default(0),
-  wicketsTaken: integer("wickets_taken").notNull().default(0),
-  economy: real("economy").notNull().default(0),
-  dotBalls: integer("dot_balls").notNull().default(0),
-  boundariesConceded: integer("boundaries_conceded").notNull().default(0),
-  catches: integer("catches").notNull().default(0),
-  runOuts: integer("run_outs").notNull().default(0),
-  stumpings: integer("stumpings").notNull().default(0),
-});
+export const playerMatchPerformance = sqliteTable(
+  "player_match_performance",
+  {
+    id: integer("id").primaryKey().notNull(),
+    matchId: integer("match_id")
+      .notNull()
+      .references(() => matches.id),
+    playerId: integer("player_id")
+      .notNull()
+      .references(() => players.id),
+    teamId: integer("team_id")
+      .notNull()
+      .references(() => teams.id),
+    runsScored: integer("runs_scored").notNull().default(0),
+    ballsFaced: integer("balls_faced").notNull().default(0),
+    fours: integer("fours").notNull().default(0),
+    sixes: integer("sixes").notNull().default(0),
+    isDismissed: integer("is_dismissed", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    dismissalType: text("dismissal_type"),
+    dismissedBy: integer("dismissed_by").references(() => players.id),
+    ballsBowled: integer("balls_bowled").notNull().default(0),
+    runsConceded: integer("runs_conceded").notNull().default(0),
+    wicketsTaken: integer("wickets_taken").notNull().default(0),
+    dotBalls: integer("dot_balls").notNull().default(0),
+    catches: integer("catches").notNull().default(0),
+    runOuts: integer("run_outs").notNull().default(0),
+    stumpings: integer("stumpings").notNull().default(0),
+  },
+  (t) => ({
+    player_idx: index("player_idx").on(t.playerId),
+    player_match_performance_idx: uniqueIndex(
+      "player_match_performance_idx"
+    ).on(t.playerId, t.matchId),
+  })
+);
 
 export const playerTournamentStats = sqliteTable("player_tournament_stats", {
   id: integer("id").primaryKey().notNull(),

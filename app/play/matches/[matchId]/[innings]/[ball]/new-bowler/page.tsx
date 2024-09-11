@@ -28,7 +28,7 @@ export default async function NewBowlerPage({
           matchId={+matchId}
           ballNumber={ball.ballNumber}
           runScored={ball.runsScored}
-          previousBowlerId={ball.bowlerId}
+          teamId={match.team2Id}
           inningsId={ball.inningsId}
           strikerId={ball.strikerId}
           nonStrikerId={ball.nonStrikerId}
