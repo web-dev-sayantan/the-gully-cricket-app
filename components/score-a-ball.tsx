@@ -218,7 +218,7 @@ function ScoreABall({
             onClick={() => setBatsman(ball.striker)}
             variant={batsman.id === ball.striker.id ? "gradient" : "secondary"}
           >
-            <span className="overflow-ellipsis">{ball.striker.name}</span>
+            <span className="text-ellipsis">{ball.striker.name}</span>
           </Button>
         </div>
         <div className="flex flex-1">

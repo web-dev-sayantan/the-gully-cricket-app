@@ -21,8 +21,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { playerFormSchema } from "@/schema/player-schema";
-import { useFormState } from "react-dom";
-import { useRef } from "react";
+import { useRef, useActionState } from "react";
 function PlayerForm({
   onFormAction,
 }: {
@@ -37,7 +36,7 @@ function PlayerForm({
     error?: string[];
   }>;
 }) {
-  const [state, formAction] = useFormState(onFormAction, {
+  const [state, formAction] = useActionState(onFormAction, {
     message: "",
   });
   const form = useForm<z.infer<typeof playerFormSchema>>({

@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Tech Stack
 
-## Getting Started
+## Frontend
 
-First, run the development server:
+- **Next.js**: A React framework for server-side rendering and generating static websites.
+- **React**: A JavaScript library for building user interfaces.
+- **PostCSS**: A tool for transforming CSS with JavaScript plugins.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Backend
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Drizzle ORM**: A lightweight TypeScript ORM for SQL databases.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Configuration and Tooling
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- **TypeScript**: A typed superset of JavaScript that compiles to plain JavaScript.
+- **ESLint**: A tool for identifying and reporting on patterns found in ECMAScript/JavaScript code.
+- **pnpm**: A fast, disk space-efficient package manager.
+- **dotenv**: A module that loads environment variables from a `.env` file into `process.env`.
 
-## Learn More
+## Build and Deployment
 
-To learn more about Next.js, take a look at the following resources:
+- **Vercel**: A platform for frontend frameworks and static sites, built to integrate with headless content, commerce, or database.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development Tools
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- **Visual Studio Code**: A source-code editor made by Microsoft for Windows, Linux, and macOS.
+- **Prettier**: An opinionated code formatter.
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **actions/**: Contains GitHub Actions workflows.
+- **app/**: Contains the main application code.
+- **components/**: Contains React components.
+- **data/**: Contains data fetching and manipulation logic.
+- **db/**: Contains database-related code.
+- **lib/**: Contains utility functions and libraries.
+- **providers/**: Contains context providers.
+- **public/**: Contains static assets.
+- **schema/**: Contains database schema definitions.
+- **types/**: Contains TypeScript type definitions.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Additional Configuration Files
+
+- **.env.local**: Environment variables for local development.
+- **.gitignore**: Specifies files and directories to be ignored by Git.
+- **drizzle.config.ts**: Configuration for Drizzle ORM.
+- **eslint.config.mjs**: Configuration for ESLint.
+- **next-env.d.ts**: TypeScript definitions for Next.js.
+- **next.config.mjs**: Configuration for Next.js.
+- **package.json**: Lists project dependencies and scripts.
+- **pnpm-lock.yaml**: Lockfile for pnpm.
+- **postcss.config.mjs**: Configuration for PostCSS.
+- **tsconfig.json**: TypeScript configuration file.
+- **the-gully-cricket-app.code-workspace**: VS Code workspace configuration.
+
+## Build Artifacts
+
+- **.next/**: Contains build artifacts and cache for Next.js.
+- **.vscode/**: Contains VS Code specific settings and configurations.

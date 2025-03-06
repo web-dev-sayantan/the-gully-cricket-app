@@ -33,6 +33,12 @@ export default async function MatchesPage() {
           </Link>
         </div>
       ))}
+      {matches.length === 0 && (
+        <>
+          <p className="text-center text-secondary-foreground"></p>
+          <Link href="/play/quick-match">Create New Match</Link>
+        </>
+      )}
     </div>
   );
 }

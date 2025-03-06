@@ -1,7 +1,7 @@
 "use client";
 import { MatchFormSchema } from "@/schema/match-form-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef } from "react";
+import { useRef, useActionState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -21,7 +21,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useFormState } from "react-dom";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -50,7 +49,7 @@ export default function QuickMatchForm({
     error?: string[];
   }>;
 }) {
-  const [state, formAction] = useFormState(onFormAction, {
+  const [state, formAction] = useActionState(onFormAction, {
     message: "",
   });
   const form = useForm<z.infer<typeof MatchFormSchema>>({

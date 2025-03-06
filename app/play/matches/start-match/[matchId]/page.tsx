@@ -4,11 +4,17 @@ import { getMatchById } from "@/data/matches";
 import { Separator } from "@radix-ui/react-separator";
 
 export const runtime = "edge";
-export default async function StartMatchPage({
-  params: { matchId },
-}: {
-  params: { matchId: string };
-}) {
+export default async function StartMatchPage(
+  props: {
+    params: Promise<{ matchId: string }>;
+  }
+) {
+  const params = await props.params;
+
+  const {
+    matchId
+  } = params;
+
   const match = await getMatchById(+matchId);
   if (!match) return <div>Match not found</div>;
 

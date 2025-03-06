@@ -9,11 +9,19 @@ import { SwordsIcon } from "lucide-react";
 import { getInningsById } from "@/data/innings";
 
 export const runtime = "edge";
-export default async function BallPage({
-  params: { matchId, innings: inningsId, ball: ballId },
-}: {
-  params: { matchId: string; innings: string; ball: string };
-}) {
+export default async function BallPage(
+  props: {
+    params: Promise<{ matchId: string; innings: string; ball: string }>;
+  }
+) {
+  const params = await props.params;
+
+  const {
+    matchId,
+    innings: inningsId,
+    ball: ballId
+  } = params;
+
   const match = await getMatchById(+matchId);
   if (!match) return <div>Match not found</div>;
 
@@ -39,7 +47,7 @@ export default async function BallPage({
     innings && (
       <main className="flex flex-col size-full gap-3 p-4">
         <div className="flex flex-col items-center gap-2 justify-between mb-4">
-          <div className="flex-center p-3 border rounded-lg w-full gap-2 bg-gradient !bg-cover">
+          <div className="flex-center p-3 border rounded-lg w-full gap-2 bg-gradient bg-cover!">
             <h1 className="font-bold text-sm">{match.team1.name}</h1>{" "}
             <SwordsIcon />
             <h1 className=" font-bold text-sm">{match.team2.name}</h1>

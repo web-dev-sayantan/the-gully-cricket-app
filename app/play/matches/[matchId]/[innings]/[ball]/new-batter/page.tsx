@@ -5,11 +5,19 @@ import { getMatchById } from "@/data/matches";
 import { redirect } from "next/navigation";
 
 export const runtime = "edge";
-export default async function NewBatterPage({
-  params: { matchId, innings: inningsId, ball: ballId },
-}: {
-  params: { matchId: string; innings: string; ball: string };
-}) {
+export default async function NewBatterPage(
+  props: {
+    params: Promise<{ matchId: string; innings: string; ball: string }>;
+  }
+) {
+  const params = await props.params;
+
+  const {
+    matchId,
+    innings: inningsId,
+    ball: ballId
+  } = params;
+
   const match = await getMatchById(+matchId);
   if (!match) return <div>Match not found</div>;
 

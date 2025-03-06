@@ -19,8 +19,7 @@ import {
 import { Player } from "@/db/types";
 import { teamFormSchema } from "@/schema/team-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef } from "react";
-import { useFormState } from "react-dom";
+import { useRef, useActionState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -40,7 +39,7 @@ function TeamForm({
     error?: string[];
   }>;
 }) {
-  const [state, formAction] = useFormState(onFormAction, {
+  const [state, formAction] = useActionState(onFormAction, {
     message: "",
   });
   const form = useForm<z.infer<typeof teamFormSchema>>({
