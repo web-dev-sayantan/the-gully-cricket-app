@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -118,9 +118,9 @@
 
   .dark {
     --gradient: linear-gradient(
-      to top left,
-      hsl(179, 92%, 12%),
-      hsl(167, 73%, 53%)
+      to left,
+      hsl(162, 100%, 50%),
+      hsl(161, 100%, 38%)
     );
 
     --background: 179 34.45% 4.16%;
@@ -138,7 +138,7 @@
     --border: 179 26.5% 15.600000000000001%;
     --input: 179 26.5% 15.600000000000001%;
 
-    --primary: 179 53% 52%;
+    --primary: 162, 100%, 50%;
     --primary-foreground: 179 5.300000000000001% 5.2%;
 
     --secondary: 179 26.5% 15.600000000000001%;
@@ -156,6 +156,17 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --color-aquamarine-50: 160, 100%, 96%;
+    --color-aquamarine-100: 163, 100%, 92%;
+    --color-aquamarine-200: 162, 100%, 84%;
+    --color-aquamarine-300: 163, 100%, 72%;
+    --color-aquamarine-400: 162, 98%, 58%;
+    --color-aquamarine-500: 162, 100%, 50%;
+    --color-aquamarine-600: 161, 100%, 38%;
+    --color-aquamarine-700: 162, 100%, 29%;
+    --color-aquamarine-800: 163, 90%, 24%;
+    --color-aquamarine-900: 164, 86%, 20%;
+    --color-aquamarine-950: 163, 100%, 11%;
   }
 }
 

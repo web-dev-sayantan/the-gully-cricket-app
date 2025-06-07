@@ -15,6 +15,7 @@ export type WicketType =
   | "stumped"
   | "hit wicket"
   | "boundary out"
+  | "lbw"
   | "others";
 
 export type TeamPlayerType = {

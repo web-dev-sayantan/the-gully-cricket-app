@@ -73,7 +73,7 @@ export default function PlayerSelector({
             setStrikerId(+value);
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select Striker" />
           </SelectTrigger>
           <SelectContent>
@@ -97,7 +97,7 @@ export default function PlayerSelector({
             setNonStrikerId(+value);
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select Non Striker" />
           </SelectTrigger>
           <SelectContent>
@@ -118,7 +118,7 @@ export default function PlayerSelector({
             setBowlerId(+value);
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select Bowler" />
           </SelectTrigger>
           <SelectContent>

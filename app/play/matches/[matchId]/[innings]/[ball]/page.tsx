@@ -9,20 +9,15 @@ import { SwordsIcon } from "lucide-react";
 import { getInningsById } from "@/data/innings";
 
 export const runtime = "edge";
-export default async function BallPage(
-  props: {
-    params: Promise<{ matchId: string; innings: string; ball: string }>;
-  }
-) {
+export default async function BallPage(props: {
+  params: Promise<{ matchId: string; innings: string; ball: string }>;
+}) {
   const params = await props.params;
 
-  const {
-    matchId,
-    innings: inningsId,
-    ball: ballId
-  } = params;
+  const { matchId, innings: inningsId, ball: ballId } = params;
 
   const match = await getMatchById(+matchId);
+  console.log("match", match);
   if (!match) return <div>Match not found</div>;
 
   let innings = await getInningsById(+inningsId);
@@ -73,7 +68,7 @@ export default async function BallPage(
           </div>
           <div className="flex-center">
             <Button size={"sm"} variant={"outline"}>
-              innings
+              Innings
             </Button>
             <Refresh onRefresh={revalidateGivenPath} />
           </div>
@@ -84,6 +79,10 @@ export default async function BallPage(
             otherBalls={otherBalls}
             innings={innings}
             bowlingTeamId={match.team2Id}
+            hasLBW={match.hasLBW}
+            hasBoundaryOut={match.hasBoundaryOut}
+            hasBye={match.hasBye}
+            hasLegBye={match.hasLegBye}
             bowlingTeamPlayers={bowlingTeamPlayers}
             onSaveBallData={saveBallData}
           ></ScoreABall>

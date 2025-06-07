@@ -17,6 +17,7 @@ export default async function QuickMatchPage() {
   ) {
     "use server";
     const data: any = Object.fromEntries(formdata);
+    console.log(data);
     const parsed = MatchFormSchema.safeParse(data);
     if (!parsed.success) {
       return {

@@ -9,7 +9,7 @@ import {
   SheetClose,
   SheetContent,
   SheetFooter,
-  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 
@@ -32,6 +32,10 @@ function ScoreABall({
   innings,
   bowlingTeamId,
   bowlingTeamPlayers,
+  hasLBW,
+  hasBoundaryOut,
+  hasBye,
+  hasLegBye,
   onSaveBallData,
 }: {
   ball: BallWithPlayers;
@@ -39,6 +43,10 @@ function ScoreABall({
   innings: Innings;
   bowlingTeamPlayers: TeamPlayerType[];
   bowlingTeamId: number;
+  hasLBW?: boolean | null;
+  hasBoundaryOut?: boolean | null;
+  hasBye?: boolean | null;
+  hasLegBye?: boolean | null;
   onSaveBallData: (
     {
       id,
@@ -122,6 +130,25 @@ function ScoreABall({
       setBatterDismissed(undefined);
     } else {
       setDismissed({ value: true, type: "bold" });
+      setDismissedBy(undefined);
+      setBatterDismissed(ball.strikerId);
+      setRun(0);
+      if (wide) {
+        setWide(false);
+      }
+      if (noBall) {
+        setNoBall(false);
+      }
+    }
+  }
+
+  function handleLBW() {
+    if (dismissed?.type === "lbw") {
+      setDismissed(undefined);
+      setDismissedBy(undefined);
+      setBatterDismissed(undefined);
+    } else {
+      setDismissed({ value: true, type: "lbw" });
       setDismissedBy(undefined);
       setBatterDismissed(ball.strikerId);
       setRun(0);
@@ -240,7 +267,8 @@ function ScoreABall({
               className={cn(
                 "flex-center items-baseline px-2 py-1 rounded-lg bg-secondary",
                 {
-                  "animate-pulse": b.id === ball.id,
+                  "animate-pulse bg-primary": b.id === ball.id,
+                  "text-red-500": b.isWicket,
                 }
               )}
             >
@@ -382,17 +410,15 @@ function ScoreABall({
               </Button>
             </SheetTrigger>
             <SheetContent side={"bottom"}>
-              <SheetHeader>
-                <h1 className="font-bold">Caught By</h1>
-              </SheetHeader>
-              <div className="flex flex-col py-4">
+              <SheetTitle className="p-4">Caught By</SheetTitle>
+              <div className="px-4 w-full">
                 <Select
                   onValueChange={(value) => {
                     setDismissedBy(+value);
                   }}
                   value={dismissedBy?.toString() || ""}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Catcher" />
                   </SelectTrigger>
                   <SelectContent>
@@ -415,6 +441,7 @@ function ScoreABall({
           </Sheet>
         </div>
         <div className="flex gap-4 items-center justify-center w-full">
+          {/* Run Out Button */}
           <Sheet>
             <SheetTrigger asChild>
               <Button
@@ -430,10 +457,8 @@ function ScoreABall({
               </Button>
             </SheetTrigger>
             <SheetContent side={"bottom"}>
-              <SheetHeader>
-                <h1 className="font-bold">Run Out Details</h1>
-              </SheetHeader>
-              <div className="flex flex-col gap-8 py-4">
+              <SheetTitle className="p-4">Run Out Details</SheetTitle>
+              <div className="flex flex-col gap-8 px-4">
                 <Select
                   onValueChange={(value) => {
                     setBatterDismissed(+value);
@@ -441,7 +466,7 @@ function ScoreABall({
                   defaultValue={ball.strikerId.toString()}
                   value={batterDismissed?.toString() || ""}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Who got out" />
                   </SelectTrigger>
                   <SelectContent>
@@ -465,7 +490,7 @@ function ScoreABall({
                   }}
                   value={dismissedBy?.toString() || ""}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Fielder" />
                   </SelectTrigger>
                   <SelectContent>
@@ -486,17 +511,35 @@ function ScoreABall({
               </SheetFooter>
             </SheetContent>
           </Sheet>
-          <Button
-            className="flex-1"
-            variant={
-              dismissed && dismissed.type === "boundary out"
-                ? "destructive"
-                : "secondary"
-            }
-            onClick={handleBoundaryOut}
-          >
-            Boundary Out
-          </Button>
+          {/* Boundary Out Button */}
+          {hasBoundaryOut && (
+            <Button
+              className="flex-1"
+              variant={
+                dismissed && dismissed.type === "boundary out"
+                  ? "destructive"
+                  : "secondary"
+              }
+              onClick={handleBoundaryOut}
+            >
+              Boundary Out
+            </Button>
+          )}
+          {/* LBW Out Button */}
+          {hasLBW && (
+            <Button
+              className="flex-1"
+              variant={
+                dismissed && dismissed.type === "lbw"
+                  ? "destructive"
+                  : "secondary"
+              }
+              onClick={handleBoundaryOut}
+            >
+              LBW
+            </Button>
+          )}
+          {/* Stump Out Button */}
           <Sheet>
             <SheetTrigger asChild>
               <Button
@@ -512,17 +555,15 @@ function ScoreABall({
               </Button>
             </SheetTrigger>
             <SheetContent side={"bottom"}>
-              <SheetHeader>
-                <h1 className="font-bold">Stumped By</h1>
-              </SheetHeader>
-              <div className="flex flex-col py-4">
+              <SheetTitle className="p-4">Stumped By</SheetTitle>
+              <div className="px-4">
                 <Select
                   onValueChange={(value) => {
                     setDismissedBy(+value);
                   }}
                   value={dismissedBy?.toString() || ""}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Player" />
                   </SelectTrigger>
                   <SelectContent>

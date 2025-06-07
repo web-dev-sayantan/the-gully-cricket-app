@@ -1,13 +1,13 @@
 "use client";
 import { MatchFormSchema } from "@/schema/match-form-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef, useActionState } from "react";
+import { useRef, useActionState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -29,9 +29,10 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format, subDays } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, InfoIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Team } from "@/db/types";
+import { Switch } from "@/components/ui/switch";
 
 export default function QuickMatchForm({
   teams,
@@ -49,10 +50,11 @@ export default function QuickMatchForm({
     error?: string[];
   }>;
 }) {
+  const [isPending, startTransition] = useTransition();
   const [state, formAction] = useActionState(onFormAction, {
     message: "",
   });
-  const form = useForm<z.infer<typeof MatchFormSchema>>({
+  const form = useForm({
     resolver: zodResolver(MatchFormSchema),
     defaultValues: {
       matchDate: new Date(),
@@ -62,9 +64,33 @@ export default function QuickMatchForm({
       team2Id: 2,
       oversPerSide: 6,
       maxOverPerBowler: 2,
+      hasLBW: false,
+      hasBye: false,
+      hasLegBye: false,
+      hasBoundaryOut: false,
     },
   });
   const formRef = useRef<HTMLFormElement>(null);
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!formRef.current) return;
+
+    const formData = new FormData(formRef.current);
+    formData.set(
+      "hasBoundaryOut",
+      formData.get("hasBoundaryOut") === "on" ? "true" : "false"
+    );
+    formData.set("hasLBW", formData.get("hasLBW") === "on" ? "true" : "false");
+    formData.set("hasBye", formData.get("hasBye") === "on" ? "true" : "false");
+    formData.set(
+      "hasLegBye",
+      formData.get("hasLegBye") === "on" ? "true" : "false"
+    );
+    startTransition(() => {
+      formAction(formData);
+    });
+  };
 
   return (
     <Form {...form}>
@@ -72,7 +98,7 @@ export default function QuickMatchForm({
         className="flex flex-col gap-4"
         ref={formRef}
         action={formAction}
-        onSubmit={form.handleSubmit(() => formRef?.current?.submit())}
+        onSubmit={onSubmit}
       >
         <FormField
           control={form.control}
@@ -129,7 +155,7 @@ export default function QuickMatchForm({
                   value={`${field.value}`}
                   name={field.name}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Team" />
                   </SelectTrigger>
                   <SelectContent>
@@ -158,7 +184,7 @@ export default function QuickMatchForm({
                   value={`${field.value}`}
                   name={field.name}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Team" />
                   </SelectTrigger>
                   <SelectContent>
@@ -187,7 +213,7 @@ export default function QuickMatchForm({
                   value={`${field.value}`}
                   name={field.name}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Team" />
                   </SelectTrigger>
                   <SelectContent>
@@ -216,7 +242,7 @@ export default function QuickMatchForm({
                   value={field.value}
                   name={field.name}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Decision" />
                   </SelectTrigger>
                   <SelectContent>
@@ -265,9 +291,81 @@ export default function QuickMatchForm({
             </FormItem>
           )}
         ></FormField>
-
-        <Button type="submit" className="my-4">
-          Create Match
+        <FormField
+          control={form.control}
+          name="hasBye"
+          render={({ field }) => (
+            <FormItem variant="inline" className="border rounded-sm px-2 py-3">
+              <FormLabel className="w-24">Byes: </FormLabel>
+              <FormControl>
+                <Switch
+                  checked={field.value as boolean}
+                  onCheckedChange={field.onChange}
+                  name={field.name}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        ></FormField>
+        <FormField
+          control={form.control}
+          name="hasLegBye"
+          render={({ field }) => (
+            <FormItem variant="inline" className="border rounded-sm px-2 py-3">
+              <FormLabel className="w-24">Leg Byes: </FormLabel>
+              <FormControl>
+                <Switch
+                  checked={field.value as boolean}
+                  onCheckedChange={field.onChange}
+                  name={field.name}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        ></FormField>
+        <FormField
+          control={form.control}
+          name="hasLBW"
+          render={({ field }) => (
+            <FormItem variant="inline" className="border rounded-sm px-2 py-3">
+              <FormLabel className="w-24">LBW: </FormLabel>
+              <FormControl>
+                <Switch
+                  checked={field.value as boolean}
+                  onCheckedChange={field.onChange}
+                  name={field.name}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        ></FormField>
+        <FormField
+          control={form.control}
+          name="hasBoundaryOut"
+          render={({ field }) => (
+            <FormItem className="border rounded-sm px-2 py-3">
+              <div className="flex gap-2">
+                <FormLabel className="w-24">Boundary Out:</FormLabel>
+                <FormControl>
+                  <Switch
+                    checked={field.value as boolean}
+                    onCheckedChange={field.onChange}
+                    name={field.name}
+                  />
+                </FormControl>
+              </div>
+              <FormDescription>
+                Player hitting out of the boundary would be deemed out.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        ></FormField>
+        <Button type="submit" className="my-4" disabled={isPending}>
+          {isPending ? "Creating Match..." : "Create Match"}
         </Button>
         <p className="">{state.message}</p>
         {state.error &&

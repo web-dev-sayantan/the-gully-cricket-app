@@ -27,18 +27,15 @@ export default async function MatchesPage() {
             href={`/play/matches/start-match/${match.id}`}
             className="w-full"
           >
-            <Button className="w-full" size={"sm"}>
-              Start Match
-            </Button>
+            <Button className="w-full">Start Match</Button>
           </Link>
         </div>
       ))}
-      {matches.length === 0 && (
-        <>
-          <p className="text-center text-secondary-foreground"></p>
-          <Link href="/play/quick-match">Create New Match</Link>
-        </>
-      )}
+      <Link href="/play/quick-match" className="w-full p-4">
+        <Button className="w-full" variant={"gradient"}>
+          Create New Match
+        </Button>
+      </Link>
     </div>
   );
 }

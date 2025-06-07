@@ -1,5 +1,16 @@
 import { z } from "zod";
 
+const stringBool = z
+  .union([
+    z.enum(["false", "0"]).transform(() => false),
+    z.boolean(),
+    z.string(),
+    z.number(),
+  ])
+  .pipe(z.coerce.boolean())
+  .default(false)
+  .optional();
+
 export const MatchFormSchema = z.object({
   matchDate: z.date().optional(),
   tossWinnerId: z.coerce.number(),
@@ -14,4 +25,8 @@ export const MatchFormSchema = z.object({
   }),
   winnerId: z.coerce.number().optional(),
   result: z.string().optional(),
+  hasLBW: stringBool,
+  hasBye: stringBool,
+  hasLegBye: stringBool,
+  hasBoundaryOut: stringBool,
 });

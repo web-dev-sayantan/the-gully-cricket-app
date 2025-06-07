@@ -38,12 +38,11 @@ export const teamPlayers = sqliteTable(
       .default(false)
       .notNull(),
   },
-  (t) => ({
-    unique_team_player: uniqueIndex("unique_team_player").on(
-      t.teamId,
-      t.playerId
-    ),
-  })
+  (t) => [uniqueIndex("unique_team_player").on(
+    t.teamId,
+    t.playerId
+  ),
+  ]
 );
 
 export const tournaments = sqliteTable("tournaments", {
@@ -91,10 +90,14 @@ export const matches = sqliteTable(
     result: text("result"),
     winnerId: integer("winner_id").references(() => teams.id),
     ranked: integer("ranked", { mode: "boolean" }).default(false),
+    hasLBW: integer("has_lbw", { mode: "boolean" }).default(false),
+    hasBye: integer("has_bye", { mode: "boolean" }).default(false),
+    hasLegBye: integer("has_leg_bye", { mode: "boolean" }).default(false),
+    hasBoundaryOut: integer("has_boundary_out", { mode: "boolean" }).default(
+      false
+    ),
   },
-  (t) => ({
-    rank_idx: index("rank_idx").on(t.winnerId),
-  })
+  (t) => [index("rank_idx").on(t.winnerId)]
 );
 
 export const innings = sqliteTable(
@@ -112,9 +115,7 @@ export const innings = sqliteTable(
     balls: integer("overs").notNull().default(0),
     extras: integer("extras").notNull().default(0),
   },
-  (t) => ({
-    match_idx: index("match_idx").on(t.matchId),
-  })
+  (t) => [index("match_idx").on(t.matchId)]
 );
 
 export const balls = sqliteTable(
@@ -152,10 +153,10 @@ export const balls = sqliteTable(
       .notNull()
       .default(false),
   },
-  (t) => ({
-    over_idx: index("over_idx").on(t.inningsId, t.bowlerId),
-    innings_idx: index("innings_idx").on(t.inningsId),
-  })
+  (t) => [
+    index("over_idx").on(t.inningsId, t.bowlerId),
+    index("innings_idx").on(t.inningsId),
+  ]
 );
 
 export const playerMatchPerformance = sqliteTable(
@@ -188,12 +189,10 @@ export const playerMatchPerformance = sqliteTable(
     runOuts: integer("run_outs").notNull().default(0),
     stumpings: integer("stumpings").notNull().default(0),
   },
-  (t) => ({
-    player_idx: index("player_idx").on(t.playerId),
-    player_match_performance_idx: uniqueIndex(
-      "player_match_performance_idx"
-    ).on(t.playerId, t.matchId),
-  })
+  (t) => [
+    index("player_idx").on(t.playerId),
+    uniqueIndex("player_match_performance_idx").on(t.playerId, t.matchId),
+  ]
 );
 
 export const playerTournamentStats = sqliteTable("player_tournament_stats", {
