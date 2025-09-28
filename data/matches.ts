@@ -46,6 +46,7 @@ export async function getMatchById(id: number) {
 export async function getAllMatches() {
   const matches = await db.query.matches.findMany({
     with: {
+      innings: true,
       team1: true,
       team2: true,
       tossWinner: true,

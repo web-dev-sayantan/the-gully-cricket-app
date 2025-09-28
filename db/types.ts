@@ -11,11 +11,13 @@ import {
   playerMatchPerformance,
   playerTournamentStats,
   playerCareerStats,
+  venues,
 } from "./schema";
 
 // Types for selecting (reading) data
 export type Tournament = InferSelectModel<typeof tournaments>;
 export type Team = InferSelectModel<typeof teams>;
+export type Venue = InferSelectModel<typeof venues>;
 export type Player = InferSelectModel<typeof players>;
 export type Match = InferSelectModel<typeof matches>;
 export type Innings = InferSelectModel<typeof innings>;

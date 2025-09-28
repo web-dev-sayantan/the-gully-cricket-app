@@ -7,6 +7,7 @@ import { getMatchById } from "@/data/matches";
 import { revalidateGivenPath, saveBallData } from "@/actions/match-actions";
 import { SwordsIcon } from "lucide-react";
 import { getInningsById } from "@/data/innings";
+import Link from "next/link";
 
 export const runtime = "edge";
 export default async function BallPage(props: {
@@ -32,7 +33,7 @@ export default async function BallPage(props: {
   let otherBalls = await getBallsOfSameOver(+inningsId, ball!.ballNumber);
   console.log(
     "otherBalls",
-    otherBalls.map((b) => `${b.ballNumber}- ${b.runsScored}`)
+    otherBalls.map((b) => `${b.ballNumber}- ${b.runsScored}`),
   );
 
   const bowlingTeamPlayers = match.team2.teamPlayers;
@@ -40,7 +41,7 @@ export default async function BallPage(props: {
   return (
     match &&
     innings && (
-      <main className="flex flex-col size-full gap-3 p-4">
+      <main className="flex flex-col size-full lg:w-1/2 m-auto gap-3 p-4">
         <div className="flex flex-col items-center gap-2 justify-between mb-4">
           <div className="flex-center p-3 border rounded-lg w-full gap-2 bg-gradient bg-cover!">
             <h1 className="font-bold text-sm">{match.team1.name}</h1>{" "}
@@ -61,15 +62,17 @@ export default async function BallPage(props: {
             <p className="flex items-baseline gap-1">
               <span className="text-muted-foreground">in</span>
               <span className="font-bold">
-                {Math.floor(innings.balls / 6)}.{innings.balls % 6}
+                {Math.floor(innings.ballsBowled / 6)}.{innings.ballsBowled % 6}
               </span>
               <span className="text-muted-foreground"> overs</span>
             </p>
           </div>
           <div className="flex-center">
-            <Button size={"sm"} variant={"outline"}>
-              Innings
-            </Button>
+            <Link href={`/play/matches/${matchId}/${inningsId}/scorecard`}>
+              <Button size={"sm"} variant={"outline"}>
+                Innings
+              </Button>
+            </Link>
             <Refresh onRefresh={revalidateGivenPath} />
           </div>
         </div>

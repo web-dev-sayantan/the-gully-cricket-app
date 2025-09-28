@@ -12,9 +12,13 @@ import {
   createPlayerPerformanceAction,
   updatePlayerPerformanceAction,
 } from "@/actions/player-performance-action";
+import { getBallById } from "@/data/balls";
 import { getMatchById } from "@/data/matches";
 import { getPlayerMatchPerformance } from "@/data/players";
+import { db } from "@/db";
+import { matches } from "@/db/schema";
 import { NewBall } from "@/db/types";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -63,6 +67,9 @@ export async function saveBallData(
   if (!id) {
     throw new Error("Ball id is required");
   }
+  // fetch the current ball data to compare with the new data
+  const currentBall = await getBallById(id);
+
   // Update the current ball
   await updateBallAction({
     id,
@@ -86,8 +93,14 @@ export async function saveBallData(
   const isExtra = isWide || isNoBall;
   const inningsData = await updateInningsAction({
     id: inningsId,
-    wickets: isWicket ? wickets + 1 : wickets,
-    balls: isExtra ? balls : balls + 1,
+    wickets: currentBall?.isWicket
+      ? isWicket
+        ? wickets
+        : wickets - 1
+      : isWicket
+      ? wickets + 1
+      : wickets,
+    ballsBowled: isExtra ? balls : balls + 1,
     extras: isExtra ? extras + 1 : extras,
     totalScore: totalScore + (runsScored || 0) + (isExtra ? 1 : 0),
   });
@@ -226,8 +239,9 @@ export async function onSelectCurrentBattersAndBowler({
   const inningsId = await createInningsAction({
     matchId: +matchId,
     battingTeamId: match.team1Id,
+    bowlingTeamId: bowlingTeamId,
     wickets: 0,
-    balls: 0,
+    ballsBowled: 0,
     extras: 0,
     totalScore: 0,
   });
@@ -261,9 +275,24 @@ export async function onSelectCurrentBattersAndBowler({
       matchId,
       teamId: match.team2Id,
     }),
+    setMatchLiveStatus({ matchId, isLive: true }),
   ]);
   revalidatePath(`/play/matches/${matchId}`);
   redirect(`/play/matches/${matchId}/${inningsId}/${ballId}`);
+}
+
+export async function setMatchLiveStatus({
+  matchId,
+  isLive,
+}: {
+  matchId: number;
+  isLive: boolean;
+}) {
+  "use server";
+  return await db
+    .update(matches)
+    .set({ isLive })
+    .where(eq(matches.id, matchId));
 }
 
 export async function onSelectNewBatter({

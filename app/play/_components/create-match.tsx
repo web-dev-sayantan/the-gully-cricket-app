@@ -31,14 +31,16 @@ import { cn } from "@/lib/utils";
 import { format, subDays } from "date-fns";
 import { CalendarIcon, InfoIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { Team } from "@/db/types";
+import { Team, Venue } from "@/db/types";
 import { Switch } from "@/components/ui/switch";
 
 export default function QuickMatchForm({
   teams,
+  venues,
   onFormAction,
 }: {
   teams: Team[];
+  venues: Venue[];
   onFormAction: (
     prevState: {
       message: string;
@@ -68,6 +70,7 @@ export default function QuickMatchForm({
       hasBye: false,
       hasLegBye: false,
       hasBoundaryOut: false,
+      hasSuperOver: false,
     },
   });
   const formRef = useRef<HTMLFormElement>(null);
@@ -86,6 +89,10 @@ export default function QuickMatchForm({
     formData.set(
       "hasLegBye",
       formData.get("hasLegBye") === "on" ? "true" : "false"
+    );
+    formData.set(
+      "hasSuperOver",
+      formData.get("hasSuperOver") === "on" ? "true" : "false"
     );
     startTransition(() => {
       formAction(formData);
@@ -360,6 +367,56 @@ export default function QuickMatchForm({
               <FormDescription>
                 Player hitting out of the boundary would be deemed out.
               </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        ></FormField>
+        <FormField
+          control={form.control}
+          name="hasSuperOver"
+          render={({ field }) => (
+            <FormItem className="border rounded-sm px-2 py-3">
+              <div className="flex gap-2">
+                <FormLabel className="w-24">Super Over:</FormLabel>
+                <FormControl>
+                  <Switch
+                    checked={field.value as boolean}
+                    onCheckedChange={field.onChange}
+                    name={field.name}
+                  />
+                </FormControl>
+              </div>
+              <FormDescription>
+                Enable if match goes to super over in case of a tie.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        ></FormField>
+        <FormField
+          control={form.control}
+          name="venueId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Venue</FormLabel>
+              <FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  value={`${field.value}`}
+                  name={field.name}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Team" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {venues.map((venue) => (
+                      <SelectItem key={venue.id} value={`${venue.id}`}>
+                        {venue.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

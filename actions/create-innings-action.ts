@@ -5,23 +5,26 @@ import { eq } from "drizzle-orm";
 export async function createInningsAction({
   matchId,
   battingTeamId,
+  bowlingTeamId,
   wickets = 0,
-  balls = 0,
+  ballsBowled = 0,
   extras = 0,
   totalScore = 0,
 }: {
   matchId: number;
   battingTeamId: number;
+  bowlingTeamId: number;
   wickets: number;
-  balls: number;
+  ballsBowled: number;
   extras: number;
   totalScore: number;
 }) {
   const newInnings = await db.insert(innings).values({
     matchId,
     battingTeamId,
+    bowlingTeamId,
     wickets,
-    balls,
+    ballsBowled,
     extras,
     totalScore,
   });
@@ -31,13 +34,13 @@ export async function createInningsAction({
 export async function updateInningsAction({
   id,
   wickets = 0,
-  balls = 0,
+  ballsBowled = 0,
   extras = 0,
   totalScore = 0,
 }: {
   id: number;
   wickets: number;
-  balls: number;
+  ballsBowled: number;
   extras: number;
   totalScore: number;
 }) {
@@ -46,7 +49,7 @@ export async function updateInningsAction({
     .set({
       id,
       wickets,
-      balls,
+      ballsBowled,
       extras,
       totalScore,
     })

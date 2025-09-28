@@ -12,6 +12,7 @@ import {
   playerTournamentStats,
   playerCareerStats,
 } from "./schema";
+import { BowArrow, IceCreamBowlIcon } from "lucide-react";
 
 // Tournament relations
 export const tournamentRelations = relations(tournaments, ({ many }) => ({
@@ -79,6 +80,10 @@ export const inningsRelations = relations(innings, ({ one, many }) => ({
     fields: [innings.battingTeamId],
     references: [teams.id],
   }),
+  bowlingTeam: one(teams, {
+    fields: [innings.bowlingTeamId],
+    references: [teams.id],
+  }),
   balls: many(balls),
 }));
 
@@ -122,7 +127,7 @@ export const tournamentTeamRelations = relations(
       fields: [tournamentTeams.teamId],
       references: [teams.id],
     }),
-  })
+  }),
 );
 
 // TeamPlayer relations
@@ -157,7 +162,7 @@ export const playerMatchPerformanceRelations = relations(
       fields: [playerMatchPerformance.dismissedBy],
       references: [players.id],
     }),
-  })
+  }),
 );
 
 // PlayerTournamentStats relations
@@ -176,7 +181,7 @@ export const playerTournamentStatsRelations = relations(
       fields: [playerTournamentStats.teamId],
       references: [teams.id],
     }),
-  })
+  }),
 );
 
 // PlayerCareerStats relations
@@ -187,5 +192,5 @@ export const playerCareerStatsRelations = relations(
       fields: [playerCareerStats.playerId],
       references: [players.id],
     }),
-  })
+  }),
 );

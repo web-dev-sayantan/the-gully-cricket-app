@@ -23,12 +23,21 @@ export default async function MatchesPage() {
             </p>
             <p className="font-bold">{match.team2.name}</p>
           </div>
-          <Link
-            href={`/play/matches/start-match/${match.id}`}
-            className="w-full"
-          >
-            <Button className="w-full">Start Match</Button>
-          </Link>
+          {match.isLive ? (
+            <Link
+              href={`/play/matches/resume-match/${match.id}/`}
+              className="w-full"
+            >
+              <Button className="w-full">Resume Match</Button>
+            </Link>
+          ) : (
+            <Link
+              href={`/play/matches/start-match/${match.id}`}
+              className="w-full"
+            >
+              <Button className="w-full">Start Match</Button>
+            </Link>
+          )}
         </div>
       ))}
       <Link href="/play/quick-match" className="w-full p-4">

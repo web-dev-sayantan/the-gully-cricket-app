@@ -1,3 +1,4 @@
+import { create } from "domain";
 import {
   integer,
   sqliteTable,
@@ -6,6 +7,78 @@ import {
   index,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
+
+export const user = sqliteTable("user", {
+  id: integer().primaryKey().notNull(),
+  name: text().notNull(),
+  username: text(),
+  displayUsername: text(),
+  email: text().notNull(),
+  emailVerified: integer({ mode: "boolean" }).default(false).notNull(),
+  Image: text(),
+  phoneNumber: text(),
+  phoneNumberVerified: integer({ mode: "boolean" }).default(false).notNull(),
+  role: text().notNull().default("user"),
+  createdAt: integer({ mode: "timestamp" }).notNull().default(new Date()),
+  updatedAt: integer({ mode: "timestamp" }).notNull().default(new Date()),
+});
+
+export const session = sqliteTable("session", {
+  id: integer().primaryKey().notNull(),
+  userId: integer()
+    .notNull()
+    .references(() => user.id),
+  token: text().notNull(),
+  expiresAt: integer({ mode: "timestamp" }).notNull().default(new Date()),
+  ipAddress: text(),
+  userAgent: text(),
+  createdAt: integer({ mode: "timestamp" }).notNull().default(new Date()),
+  updatedAt: integer({ mode: "timestamp" }).notNull().default(new Date()),
+});
+
+export const account = sqliteTable("account", {
+  id: integer().primaryKey().notNull(),
+  userId: integer()
+    .notNull()
+    .references(() => user.id),
+  accountId: text().notNull(),
+  providerId: text().notNull(),
+  accessToken: text(),
+  refreshToken: text(),
+  accessTokenExpiresAt: integer({ mode: "timestamp" }),
+  refreshTokenExpiresAt: integer({ mode: "timestamp" }),
+  scope: text(),
+  idToken: text(),
+  password: text(),
+  createdAt: integer({ mode: "timestamp" }).notNull().default(new Date()),
+  updatedAt: integer({ mode: "timestamp" }).notNull().default(new Date()),
+});
+
+export const verification = sqliteTable("verification", {
+  id: integer().primaryKey().notNull(),
+  identifier: text().notNull(),
+  value: text().notNull(),
+  expiresAt: integer({ mode: "timestamp" }).notNull().default(new Date()),
+  createdAt: integer({ mode: "timestamp" }).notNull().default(new Date()),
+  updatedAt: integer({ mode: "timestamp" }).notNull().default(new Date()),
+});
+
+export const passkey = sqliteTable("passkey", {
+  id: integer().primaryKey().notNull(),
+  name: text(),
+  publicKey: text().notNull(),
+  userId: text()
+    .notNull()
+    .references(() => user.id),
+  webauthnUserId: text().notNull(),
+  counter: integer().notNull().default(0),
+  deviceType: text().notNull(),
+  backedUp: integer({ mode: "boolean" }).notNull().default(false),
+  transports: text().notNull(),
+  aaguid: text(),
+  createdAt: integer({ mode: "timestamp" }).notNull().default(new Date()),
+  updatedAt: integer({ mode: "timestamp" }).notNull().default(new Date()),
+});
 
 export const players = sqliteTable("players", {
   id: integer("id").primaryKey().notNull(),
@@ -38,11 +111,7 @@ export const teamPlayers = sqliteTable(
       .default(false)
       .notNull(),
   },
-  (t) => [uniqueIndex("unique_team_player").on(
-    t.teamId,
-    t.playerId
-  ),
-  ]
+  (t) => [uniqueIndex("unique_team_player").on(t.teamId, t.playerId)]
 );
 
 export const tournaments = sqliteTable("tournaments", {
@@ -69,6 +138,18 @@ export const tournamentTeams = sqliteTable("tournamentTeams", {
   matchesDrawn: integer("matchesDrawn").default(0),
 });
 
+export const venues = sqliteTable("venues", {
+  id: integer("id").primaryKey().notNull(),
+  name: text("name").notNull(),
+  location: text("location"),
+  street: text("street"),
+  city: text("city"),
+  state: text("state"),
+  country: text("country"),
+  pincode: text("pincode"),
+  capacity: integer("capacity").default(0),
+});
+
 export const matches = sqliteTable(
   "matches",
   {
@@ -90,12 +171,23 @@ export const matches = sqliteTable(
     result: text("result"),
     winnerId: integer("winner_id").references(() => teams.id),
     ranked: integer("ranked", { mode: "boolean" }).default(false),
+    isLive: integer("is_live", { mode: "boolean" }).default(true),
+    isCompleted: integer("is_completed", { mode: "boolean" }).default(false),
+    isAbandoned: integer("is_abandoned", { mode: "boolean" }).default(false),
+    isTied: integer("is_tied", { mode: "boolean" }).default(false),
+    margin: text("margin"), // e.g., "10 runs", "5 wickets"
+    playerOfTheMatchId: integer("player_of_the_match_id").references(
+      () => players.id
+    ),
     hasLBW: integer("has_lbw", { mode: "boolean" }).default(false),
     hasBye: integer("has_bye", { mode: "boolean" }).default(false),
     hasLegBye: integer("has_leg_bye", { mode: "boolean" }).default(false),
     hasBoundaryOut: integer("has_boundary_out", { mode: "boolean" }).default(
       false
     ),
+    hasSuperOver: integer("has_super_over", { mode: "boolean" }).default(false),
+    venueId: integer("venue_id").references(() => venues.id),
+    notes: text("notes"),
   },
   (t) => [index("rank_idx").on(t.winnerId)]
 );
@@ -110,10 +202,14 @@ export const innings = sqliteTable(
     battingTeamId: integer("batting_team_id")
       .notNull()
       .references(() => teams.id),
+    bowlingTeamId: integer("bowling_team_id")
+      .notNull()
+      .references(() => teams.id),
     totalScore: integer("total_runs").notNull().default(0),
     wickets: integer("wickets").notNull().default(0),
-    balls: integer("overs").notNull().default(0),
+    ballsBowled: integer("balls_bowled").notNull().default(0),
     extras: integer("extras").notNull().default(0),
+    isCompleted: integer("is_completed", { mode: "boolean" }).default(false),
   },
   (t) => [index("match_idx").on(t.matchId)]
 );

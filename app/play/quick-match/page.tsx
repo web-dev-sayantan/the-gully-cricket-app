@@ -4,10 +4,11 @@ import { MatchFormSchema } from "@/schema/match-form-schema";
 import QuickMatchForm from "@/app/play/_components/create-match";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { getAllVenues } from "@/data/venues";
 
 export default async function QuickMatchPage() {
   const teams = await getAllTeams();
-
+  const venues = await getAllVenues();
   async function onFormAction(
     prevState: {
       message: string;
@@ -50,7 +51,11 @@ export default async function QuickMatchPage() {
   return (
     <section className="flex flex-col gap-4 p-4">
       <h1 className="text-2xl text-center">Create Quick Match</h1>
-      <QuickMatchForm teams={teams} onFormAction={onFormAction} />
+      <QuickMatchForm
+        teams={teams}
+        venues={venues}
+        onFormAction={onFormAction}
+      />
     </section>
   );
 }

@@ -88,6 +88,8 @@ function ScoreABall({
   const [dismissed, setDismissed] = useState<Dismissed>();
   const [wide, setWide] = useState(ball.isWide);
   const [noBall, setNoBall] = useState(ball.isNoBall);
+  const [bye, setBye] = useState(ball.isBye);
+  const [legBye, setLegBye] = useState(ball.isLegBye);
   const [batsman, setBatsman] = useState(ball.striker);
   const [dismissedBy, setDismissedBy] = useState<number | undefined | null>(
     null
@@ -117,10 +119,55 @@ function ScoreABall({
     "boundary out": "W",
   };
   function handleWide() {
+    if (noBall) {
+      setNoBall(false);
+    }
+    if (!wide && dismissed?.value) {
+      //Checking for !wide as state isn't updated yet
+      if (!(dismissed.type === "run out" || dismissed.type === "stumped")) {
+        setDismissed(undefined);
+        setDismissedBy(undefined);
+        setBatterDismissed(undefined);
+      }
+    }
     setWide(!wide);
   }
   function handleNo() {
+    if (wide) {
+      setWide(false);
+    }
+    if (!noBall && dismissed?.value) {
+      //Checking for !noball as state isn't updated yet
+      if (dismissed.type !== "run out") {
+        setDismissed(undefined);
+        setDismissedBy(undefined);
+        setBatterDismissed(undefined);
+      }
+    }
     setNoBall(!noBall);
+  }
+
+  function handleBye() {
+    setBye(!bye);
+  }
+  function handleLegBye() {
+    setLegBye(!legBye);
+  }
+
+  function handleRunScored(runScored: number) {
+    setRun(runScored);
+    if (dismissed?.value) {
+      if (
+        dismissed?.type === "run out" ||
+        (dismissed?.type === "stumped" && runScored > 1)
+      ) {
+        return;
+      } else {
+        setDismissed(undefined);
+        setDismissedBy(undefined);
+        setBatterDismissed(undefined);
+      }
+    }
   }
 
   function handleBoldOut() {
@@ -205,6 +252,14 @@ function ScoreABall({
     }
   }
 
+  function shortenName(name: string) {
+    const names = name.split(" ");
+    if (names.length > 1) {
+      return `${names[0]} ${names[names.length - 1][0]}`;
+    }
+    return name;
+  }
+
   function handleNext() {
     onSaveBallData(
       {
@@ -216,6 +271,8 @@ function ScoreABall({
         runsScored: run,
         isWide: wide,
         isNoBall: noBall,
+        isBye: bye,
+        isLegBye: legBye,
         isWicket: dismissed ? dismissed.value : false,
         wicketType: dismissed && dismissed.value ? dismissed.type : undefined,
         assistPlayerId: dismissedBy ? dismissedBy : undefined,
@@ -225,7 +282,7 @@ function ScoreABall({
       },
       {
         inningsId: innings.id,
-        balls: innings.balls,
+        balls: innings.ballsBowled,
         wickets: innings.wickets,
         extras: innings.extras,
         totalScore: innings.totalScore,
@@ -259,13 +316,13 @@ function ScoreABall({
         </div>
       </div>
       <div className="flex-y-center gap-2">
-        <h1 className="font-bold">{ball.bowler.name} : </h1>
+        <h1 className="font-bold">{shortenName(ball.bowler.name)} : </h1>
         <div className="flex-y-center gap-2">
           {otherBalls.map((b) => (
             <div
               key={b.id}
               className={cn(
-                "flex-center items-baseline px-2 py-1 rounded-lg bg-secondary",
+                "flex-center items-baseline px-2 py-1 rounded-lg bg-secondary cursor-pointer",
                 {
                   "animate-pulse bg-primary": b.id === ball.id,
                   "text-red-500": b.isWicket,
@@ -288,7 +345,7 @@ function ScoreABall({
           className="w-full h-[6rem] text-4xl font-bold"
           type="number"
           onChange={(e) => {
-            setRun(Number(e.target.value));
+            handleRunScored(Number(e.target.value));
           }}
           value={ballScore}
           max={7}
@@ -298,14 +355,14 @@ function ScoreABall({
           <Button
             size={"lg"}
             variant={run > 0 ? "default" : "secondary"}
-            onClick={() => run > 0 && setRun(run - 1)}
+            onClick={() => run > 0 && handleRunScored(run - 1)}
           >
             <MinusIcon />
           </Button>
           <Button
             size={"lg"}
             variant={run < 7 ? "default" : "secondary"}
-            onClick={() => run < 8 && setRun(run + 1)}
+            onClick={() => run < 8 && handleRunScored(run + 1)}
           >
             <PlusIcon />
           </Button>
@@ -317,7 +374,7 @@ function ScoreABall({
           <Button
             size={"squareLg"}
             className="flex-1"
-            onClick={() => setRun(0)}
+            onClick={() => handleRunScored(0)}
             variant={run === 0 ? "default" : "secondary"}
           >
             0
@@ -325,7 +382,7 @@ function ScoreABall({
           <Button
             size={"squareLg"}
             className="flex-1"
-            onClick={() => setRun(1)}
+            onClick={() => handleRunScored(1)}
             variant={run === 1 ? "default" : "secondary"}
           >
             1
@@ -333,7 +390,7 @@ function ScoreABall({
           <Button
             size={"squareLg"}
             className="flex-1"
-            onClick={() => setRun(4)}
+            onClick={() => handleRunScored(4)}
             variant={run === 4 ? "default" : "secondary"}
           >
             4
@@ -341,7 +398,7 @@ function ScoreABall({
           <Button
             size={"squareLg"}
             className="flex-1"
-            onClick={() => setRun(6)}
+            onClick={() => handleRunScored(6)}
             variant={run === 6 ? "default" : "secondary"}
           >
             6
@@ -368,6 +425,26 @@ function ScoreABall({
           >
             No Ball
           </Button>
+          {hasBye && (
+            <Button
+              size={"lg"}
+              className="flex-1"
+              onClick={handleBye}
+              variant={bye ? "default" : "secondary"}
+            >
+              Byes
+            </Button>
+          )}
+          {hasLegBye && (
+            <Button
+              size={"lg"}
+              className="flex-1"
+              onClick={handleLegBye}
+              variant={legBye ? "default" : "secondary"}
+            >
+              Leg Byes
+            </Button>
+          )}
         </div>
       </div>
       <Separator className="my-2" />
@@ -534,7 +611,7 @@ function ScoreABall({
                   ? "destructive"
                   : "secondary"
               }
-              onClick={handleBoundaryOut}
+              onClick={handleLBW}
             >
               LBW
             </Button>
@@ -588,8 +665,10 @@ function ScoreABall({
       </div>
       <Separator className="my-1" />
       <div className="flex gap-4">
-        <Button variant={"destructive"}>Clear</Button>
-        <Button className="flex-1" onClick={handleNext}>
+        <Button variant={"destructive"} size={"lg"}>
+          Clear
+        </Button>
+        <Button className="flex-1" onClick={handleNext} size={"lg"}>
           Next Ball
         </Button>
       </div>

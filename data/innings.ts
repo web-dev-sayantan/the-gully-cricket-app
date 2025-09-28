@@ -19,6 +19,23 @@ export function getInningsById(id: number) {
 export function getInningsByMatchId(id: number) {
   return db.query.innings.findMany({
     where: eq(innings.matchId, id),
+    with: {
+      battingTeam: {
+        columns: {
+          id: true,
+          name: true,
+          shortName: true,
+        },
+      },
+      bowlingTeam: {
+        columns: {
+          id: true,
+          name: true,
+          shortName: true,
+        },
+      },
+      balls: true,
+    },
   });
 }
 
