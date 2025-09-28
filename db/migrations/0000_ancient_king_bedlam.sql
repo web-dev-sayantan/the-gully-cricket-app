@@ -10,8 +10,8 @@ CREATE TABLE `account` (
 	`scope` text,
 	`idToken` text,
 	`password` text,
-	`createdAt` integer DEFAULT '"2025-09-28T02:08:15.509Z"' NOT NULL,
-	`updatedAt` integer DEFAULT '"2025-09-28T02:08:15.509Z"' NOT NULL,
+	`createdAt` integer DEFAULT '"2025-09-28T02:15:26.094Z"' NOT NULL,
+	`updatedAt` integer DEFAULT '"2025-09-28T02:15:26.094Z"' NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
@@ -104,8 +104,8 @@ CREATE TABLE `passkey` (
 	`backedUp` integer DEFAULT false NOT NULL,
 	`transports` text NOT NULL,
 	`aaguid` text,
-	`createdAt` integer DEFAULT '"2025-09-28T02:08:15.509Z"' NOT NULL,
-	`updatedAt` integer DEFAULT '"2025-09-28T02:08:15.509Z"' NOT NULL,
+	`createdAt` integer DEFAULT '"2025-09-28T02:15:26.094Z"' NOT NULL,
+	`updatedAt` integer DEFAULT '"2025-09-28T02:15:26.094Z"' NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
@@ -202,11 +202,11 @@ CREATE TABLE `session` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`userId` integer NOT NULL,
 	`token` text NOT NULL,
-	`expiresAt` integer DEFAULT '"2025-09-28T02:08:15.509Z"' NOT NULL,
+	`expiresAt` integer DEFAULT '"2025-09-28T02:15:26.094Z"' NOT NULL,
 	`ipAddress` text,
 	`userAgent` text,
-	`createdAt` integer DEFAULT '"2025-09-28T02:08:15.509Z"' NOT NULL,
-	`updatedAt` integer DEFAULT '"2025-09-28T02:08:15.509Z"' NOT NULL,
+	`createdAt` integer DEFAULT '"2025-09-28T02:15:26.094Z"' NOT NULL,
+	`updatedAt` integer DEFAULT '"2025-09-28T02:15:26.094Z"' NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
@@ -259,10 +259,13 @@ CREATE TABLE `user` (
 	`phoneNumber` text,
 	`phoneNumberVerified` integer DEFAULT false NOT NULL,
 	`role` text DEFAULT 'user' NOT NULL,
-	`createdAt` integer DEFAULT '"2025-09-28T02:08:15.508Z"' NOT NULL,
-	`updatedAt` integer DEFAULT '"2025-09-28T02:08:15.508Z"' NOT NULL
+	`createdAt` integer DEFAULT '"2025-09-28T02:15:26.094Z"' NOT NULL,
+	`updatedAt` integer DEFAULT '"2025-09-28T02:15:26.094Z"' NOT NULL
 );
 --> statement-breakpoint
+CREATE UNIQUE INDEX `user_username_unique` ON `user` (`username`);--> statement-breakpoint
+CREATE UNIQUE INDEX `user_displayUsername_unique` ON `user` (`displayUsername`);--> statement-breakpoint
+CREATE UNIQUE INDEX `user_phoneNumber_unique` ON `user` (`phoneNumber`);--> statement-breakpoint
 CREATE TABLE `venues` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
@@ -279,7 +282,7 @@ CREATE TABLE `verification` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`identifier` text NOT NULL,
 	`value` text NOT NULL,
-	`expiresAt` integer DEFAULT '"2025-09-28T02:08:15.509Z"' NOT NULL,
-	`createdAt` integer DEFAULT '"2025-09-28T02:08:15.509Z"' NOT NULL,
-	`updatedAt` integer DEFAULT '"2025-09-28T02:08:15.509Z"' NOT NULL
+	`expiresAt` integer DEFAULT '"2025-09-28T02:15:26.094Z"' NOT NULL,
+	`createdAt` integer DEFAULT '"2025-09-28T02:15:26.094Z"' NOT NULL,
+	`updatedAt` integer DEFAULT '"2025-09-28T02:15:26.094Z"' NOT NULL
 );
