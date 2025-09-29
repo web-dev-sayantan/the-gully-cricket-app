@@ -34,6 +34,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { redirect } from "next/navigation";
+import FacebookButton from "@/components/facebook-button";
 
 const signinSchema = z.object({
   email: z.email(),
@@ -51,10 +52,10 @@ export default function SignIn() {
   const [otpSent, setOtpSent] = useState(0);
   const [signinError, setSigninError] = useState("");
 
-  async function signInWithSocial(provider: "github" | "google") {
+  async function signInWithSocial(provider: "facebook" | "google") {
     const { data, error } = await signIn.social({ provider });
     if (data && data.redirect) {
-      redirect("/dashboard");
+      redirect("/play/matches");
     } else {
       setSigninError("Login Failed. Try Again");
     }
@@ -104,15 +105,10 @@ export default function SignIn() {
           {!otpSent && (
             <>
               <div className="flex w-full items-center gap-4 pb-4">
-                <Button
-                  type="button"
-                  variant="outline"
+                <FacebookButton
                   className="w-full flex-1"
-                  onClick={() => signInWithSocial("github")}
-                >
-                  <Github className="mr-2 h-4 w-4" />
-                  <span className="font-semibold">Github</span>
-                </Button>
+                  onClick={() => signInWithSocial("facebook")}
+                />
                 <GoogleButton
                   className="w-full flex-1"
                   onClick={() => signInWithSocial("google")}
@@ -237,7 +233,7 @@ export default function SignIn() {
             Do not have an account yet?{" "}
             <Link
               href="/sign-up"
-              className="text-brand-800 underline-offset-2 hover:underline"
+              className="text-primary/80 underline-offset-2 hover:underline"
             >
               Sign Up
             </Link>

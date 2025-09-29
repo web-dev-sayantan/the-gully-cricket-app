@@ -1,7 +1,7 @@
 import { createMatchAction } from "@/actions/create-match-action";
 import { getAllTeams } from "@/data/teams";
 import { MatchFormSchema } from "@/schema/match-form-schema";
-import QuickMatchForm from "@/app/play/_components/create-match";
+import QuickMatchForm from "@/app/(secure)/play/_components/create-match";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getAllVenues } from "@/data/venues";

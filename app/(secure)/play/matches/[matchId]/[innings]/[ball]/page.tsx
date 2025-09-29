@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import Refresh from "@/app/play/matches/[matchId]/_components/refresh";
+import Refresh from "@/app/(secure)/play/matches/[matchId]/_components/refresh";
 import ScoreABall from "@/components/score-a-ball";
 import { Button } from "@/components/ui/button";
 import { getBallById, getBallsOfSameOver } from "@/data/balls";
