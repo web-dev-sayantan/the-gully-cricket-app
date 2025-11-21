@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Github } from "lucide-react";
 import {
   Card,
   CardContent,

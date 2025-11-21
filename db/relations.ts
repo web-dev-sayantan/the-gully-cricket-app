@@ -12,7 +12,6 @@ import {
   playerTournamentStats,
   playerCareerStats,
 } from "./schema";
-import { BowArrow, IceCreamBowlIcon } from "lucide-react";
 
 // Tournament relations
 export const tournamentRelations = relations(tournaments, ({ many }) => ({
